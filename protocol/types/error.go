@@ -63,7 +63,7 @@ func (e *BizError) HasSameCode(err error) (ok bool) {
 	return false
 }
 
-func New(statusCode int32, msg string) *BizError {
+func NewBizErr(statusCode int32, msg string) *BizError {
 	return &BizError{Code: statusCode, Msg: msg}
 }
 

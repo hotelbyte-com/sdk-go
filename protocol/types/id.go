@@ -63,6 +63,9 @@ func (ids *IDs) UnmarshalJSON(data []byte) error {
 		if err := sonic.Unmarshal(b, &tmp); err != nil {
 			return err
 		}
+		if tmp == 0 {
+			return nil
+		}
 		*ids = IDs{ID(tmp)}
 		return nil
 	case '"':

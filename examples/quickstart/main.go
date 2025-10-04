@@ -38,6 +38,7 @@ func main() {
 			CheckOut: 20240317, // YYYYMMDD format
 		},
 		Occupancies: protocol.Occupancies{
+			CountryCode: "AE",
 			RoomOccupancies: []protocol.GuestPerRoom{
 				{
 					AdultCount: 2,
@@ -61,15 +62,14 @@ func main() {
 	if len(searchResp.List) > 0 {
 		hotel := searchResp.List[0]
 		fmt.Printf("First hotel: %+v\n", hotel.Name)
-		fmt.Printf("Location: %+v\n", hotel.LatlngCoordinator)
+		fmt.Printf("Location: %+v\n", hotel.LatlngCoordinator.Google)
 		fmt.Printf("Min price: %.2f %s\n", hotel.MinPrice.Amount, hotel.MinPrice.Currency)
 	}
 	fmt.Printf("Session ID: %s\n", searchResp.Basic.SessionId)
 
 	// Example 2: Get hotel rates
 	sop := protocol.SessionOption{SessionId: searchResp.Basic.SessionId}
-	if len(searchResp.List) > 0 {
-	}
+
 	for _, h := range searchResp.List {
 		if handleHotel(ctx, client, h, searchReq, sop) {
 			break

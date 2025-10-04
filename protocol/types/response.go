@@ -10,7 +10,10 @@ type Response[T any] struct {
 	Data *T `json:"data"`
 }
 
-func NewResponse[T any](body []byte) (*T, error) {
+func NewResponse[T any](status int, body []byte) (*T, error) {
+	if len(body) == 0 {
+		return nil, NewBizErr(int32(status), "Service Unavailable")
+	}
 	var response Response[T]
 	err := sonic.Unmarshal(body, &response)
 	if err != nil {

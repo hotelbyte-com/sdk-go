@@ -2,10 +2,8 @@ package hotelbyte
 
 import (
 	"context"
-	"errors"
 	"github.com/hotelbyte-com/sdk-go/protocol"
 	"github.com/hotelbyte-com/sdk-go/protocol/types"
-	"github.com/spf13/cast"
 	"net/http"
 )
 
@@ -28,11 +26,8 @@ func (s *Client) Authenticate(ctx context.Context) error {
 		// On transport error, try fallback path if available
 		return err
 	}
-	if resp.StatusCode >= 400 {
-		return errors.New(cast.ToString(resp.StatusCode))
-	}
 
-	r, err := types.NewResponse[protocol.AuthResp](resp.Body)
+	r, err := types.NewResponse[protocol.AuthResp](resp.StatusCode, resp.Body)
 	if err != nil {
 		return err
 	}
