@@ -17,6 +17,7 @@ type HotelListReq struct {
 
 	// header
 	CurrencyOption
+	TestOption
 }
 
 type HotelListResp struct {

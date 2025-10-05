@@ -5,6 +5,7 @@ import "github.com/hotelbyte-com/sdk-go/protocol/types"
 type CancelReq struct {
 	CustomerReferenceNo string `json:"customerReferenceNo" required:"true"`
 	SupplierReferenceNo string `json:"supplierReferenceNo" required:"true"`
+	TestOption
 }
 
 type CancelResp struct {

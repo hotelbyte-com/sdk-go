@@ -3,6 +3,7 @@ package protocol
 type CheckAvailReq struct {
 	RatePkgId string `json:"ratePkgId" required:"true"`
 	SessionOption
+	TestOption
 }
 type CheckAvailResp struct {
 	Status      CheckAvailStatus `json:"status"`                                // Status indicates whether the room is available or not, or other unavailable causes like credit warning status
