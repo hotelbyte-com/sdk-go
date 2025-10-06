@@ -11,6 +11,7 @@ type BookReq struct {
 	Holder              Holder  `json:"holder,omitzero" required:"true"`              // Holder contains the booking contact information
 	Guests              []Guest `json:"guests,omitzero" required:"true"`              // Guests contains the list of guests for this room
 	SessionOption
+	TestOption
 }
 type Holder struct {
 	FirstName string `json:"firstName" required:"true" example:"John"`

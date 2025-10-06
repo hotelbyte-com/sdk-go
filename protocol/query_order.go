@@ -12,6 +12,7 @@ type QueryOrdersReq struct {
 	FreeCancelTimeWindow *types.TimeWindow `json:"freeCancelTimeWindow,omitzero"` // filters orders by free cancel date range
 	CancelledTimeWindow  *types.TimeWindow `json:"cancelledTimeWindow,omitzero"`  // filters orders by cancellation date range
 	StatusList           []OrderStatus     `json:"statusList,omitzero"`           // filters orders by status
+	TestOption
 }
 
 // QueryOrdersResp represents the response containing multiple hotel orders
