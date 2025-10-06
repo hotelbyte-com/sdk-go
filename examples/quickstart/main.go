@@ -81,7 +81,7 @@ func run(client *hotelbyte.Client, tq string) {
 	fmt.Printf("Found %d hotels\n", len(searchResp.List))
 	if len(searchResp.List) > 0 {
 		hotel := searchResp.List[0]
-		fmt.Printf("First hotel: %+v\n", hotel.Name)
+		fmt.Printf("First hotel: %+v (%v)\n", hotel.Name, hotel.ID)
 		fmt.Printf("Location: %+v\n", hotel.LatlngCoordinator.Google)
 		fmt.Printf("Min price: %.2f %s\n", hotel.MinPrice.Amount, hotel.MinPrice.Currency)
 	}

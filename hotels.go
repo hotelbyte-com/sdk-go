@@ -2,13 +2,11 @@ package hotelbyte
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 
 	"github.com/hotelbyte-com/sdk-go/protocol"
 	"github.com/hotelbyte-com/sdk-go/protocol/types"
-	"github.com/spf13/cast"
 )
 
 func (s *Client) HotelList(ctx context.Context, req *protocol.HotelListReq) (*protocol.HotelListResp, error) {
@@ -63,7 +61,7 @@ func (s *Client) HotelRates(ctx context.Context, req *protocol.HotelRatesReq) (*
 		return nil, fmt.Errorf("get hotel rates request failed: %w", err)
 	}
 
-	return types.NewResponse[protocol.HotelRatesResp](resp.Body)
+	return types.NewResponse[protocol.HotelRatesResp](resp.StatusCode, resp.Body)
 }
 
 func (s *Client) CheckAvail(ctx context.Context, req *protocol.CheckAvailReq) (*protocol.CheckAvailResp, error) {
@@ -90,7 +88,7 @@ func (s *Client) CheckAvail(ctx context.Context, req *protocol.CheckAvailReq) (*
 		return nil, fmt.Errorf("get hotel rates request failed: %w", err)
 	}
 
-	return types.NewResponse[protocol.CheckAvailResp](resp.Body)
+	return types.NewResponse[protocol.CheckAvailResp](resp.StatusCode, resp.Body)
 }
 
 func (s *Client) Book(ctx context.Context, req *protocol.BookReq) (*protocol.BookResp, error) {
@@ -117,7 +115,7 @@ func (s *Client) Book(ctx context.Context, req *protocol.BookReq) (*protocol.Boo
 		return nil, fmt.Errorf("get hotel rates request failed: %w", err)
 	}
 
-	return types.NewResponse[protocol.BookResp](resp.Body)
+	return types.NewResponse[protocol.BookResp](resp.StatusCode, resp.Body)
 }
 
 func (s *Client) QueryOrders(ctx context.Context, req *protocol.QueryOrdersReq) (*protocol.QueryOrdersResp, error) {
@@ -143,7 +141,7 @@ func (s *Client) QueryOrders(ctx context.Context, req *protocol.QueryOrdersReq) 
 		return nil, fmt.Errorf("get hotel rates request failed: %w", err)
 	}
 
-	return types.NewResponse[protocol.QueryOrdersResp](resp.Body)
+	return types.NewResponse[protocol.QueryOrdersResp](resp.StatusCode, resp.Body)
 }
 
 func (s *Client) Cancel(ctx context.Context, req *protocol.CancelReq) (*protocol.CancelResp, error) {
@@ -169,5 +167,5 @@ func (s *Client) Cancel(ctx context.Context, req *protocol.CancelReq) (*protocol
 		return nil, fmt.Errorf("get hotel rates request failed: %w", err)
 	}
 
-	return types.NewResponse[protocol.CancelResp](resp.Body)
+	return types.NewResponse[protocol.CancelResp](resp.StatusCode, resp.Body)
 }
