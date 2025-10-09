@@ -2,13 +2,21 @@ package hotelbyte
 
 import (
 	"context"
+	"time"
+
+	"net/http"
+
 	"github.com/hotelbyte-com/sdk-go/protocol"
 	"github.com/hotelbyte-com/sdk-go/protocol/types"
-	"net/http"
 )
 
 // Authenticate performs user authentication
 func (s *Client) Authenticate(ctx context.Context) error {
+	// 如果 token 存在且未过期（提前 5 分钟刷新），直接返回
+	if s.token != "" && time.Now().Before(s.tokenExpiry.Add(-5*time.Minute)) {
+		return nil
+	}
+
 	// Build authentication request
 	req := &protocol.AuthReq{
 		AppKey:    s.config.Credentials.AppKey,
@@ -32,8 +40,9 @@ func (s *Client) Authenticate(ctx context.Context) error {
 		return err
 	}
 
-	// Save token information (expiry may not be provided by backend)
+	// 保存 token 和过期时间
 	s.token = r.Ticket
+	s.tokenExpiry = time.Now().Add(time.Duration(req.TTL) * time.Second)
 	return nil
 }
 
@@ -44,8 +53,9 @@ func (s *Client) GetToken() string {
 
 // RefreshToken refreshes the authentication token
 func (s *Client) RefreshToken(ctx context.Context) error {
-	// Clear current token
+	// Clear current token and expiry to force re-authentication
 	s.token = ""
+	s.tokenExpiry = time.Time{}
 	// Re-authenticate
 	return s.Authenticate(ctx)
 }

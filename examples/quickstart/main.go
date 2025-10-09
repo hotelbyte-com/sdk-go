@@ -19,6 +19,7 @@ func main() {
 	// Initialize SDK client with credentials (use client options API)
 	client, err := hotelbyte.NewClient(
 		hotelbyte.WithBaseURL("http://localhost:8080"),
+		//hotelbyte.WithBaseURL("https://api-test.hotelbyte.com"),
 		hotelbyte.WithCredentials("hotelbyte_api_demo", "hotelbyte_api_demo"),
 		hotelbyte.WithTimeout(120*time.Second),
 	)
@@ -27,8 +28,8 @@ func main() {
 	}
 	defer client.Close()
 	testQueries := []string{
-		//"",
-		"disableSimulator=true&onlyAvailableHotels=true",
+		"",
+		"disableSimulator=true&onlyAvailableSupplierHotels=true",
 	}
 	for _, tq := range testQueries {
 		run(client, tq)
@@ -79,18 +80,15 @@ func run(client *hotelbyte.Client, tq string) {
 	}
 
 	fmt.Printf("Found %d hotels\n", len(searchResp.List))
-	if len(searchResp.List) > 0 {
-		hotel := searchResp.List[0]
-		fmt.Printf("First hotel: %+v (%v)\n", hotel.Name, hotel.ID)
-		fmt.Printf("Location: %+v\n", hotel.LatlngCoordinator.Google)
-		fmt.Printf("Min price: %.2f %s\n", hotel.MinPrice.Amount, hotel.MinPrice.Currency)
-	}
 	fmt.Printf("Session ID: %s\n", searchResp.Basic.SessionId)
 
 	// Example 2: Get hotel rates
 	sop := protocol.SessionOption{SessionId: searchResp.Basic.SessionId}
-	for _, h := range searchResp.List {
-		if handleHotel(ctx, client, h, searchReq, sop) {
+	for _, hotel := range searchResp.List {
+		fmt.Printf("Process hotel: %+v (%v)\n", hotel.Name, hotel.ID)
+		fmt.Printf("Location: %+v\n", hotel.LatlngCoordinator.Google)
+		fmt.Printf("Min price: %.2f %s\n", hotel.MinPrice.Amount, hotel.MinPrice.Currency)
+		if handleHotel(ctx, client, hotel, searchReq, sop) {
 			break
 		}
 	}
@@ -116,8 +114,7 @@ func handleHotel(ctx context.Context, client *hotelbyte.Client, hotel *protocol.
 	}
 
 	fmt.Printf("Found %d rooms with rates\n", len(ratesResp.Rooms))
-	if len(ratesResp.Rooms) > 0 {
-		room := ratesResp.Rooms[0]
+	for _, room := range ratesResp.Rooms {
 		fmt.Printf("Room: %+v\n", room)
 		fmt.Printf("Available rates: %d\n", len(room.Rates))
 		if handleRoom(ctx, client, room, sop, searchReq.TestOption) {
@@ -144,10 +141,13 @@ func handleRate(ctx context.Context, client *hotelbyte.Client, rate protocol.Roo
 	}
 	checkAvailResp, err := client.CheckAvail(ctx, checkAvailReq)
 	if err != nil {
-		log.Fatalf("Check availability failed: %v", err)
+		log.Printf("Check availability failed: %v\n", err)
+		return false
 	}
 	log.Printf("Check Availibility, status:%v\n", checkAvailResp.Status)
-
+	if checkAvailResp.Status != protocol.CheckAvailStatusAvailable {
+		return false
+	}
 	fmt.Println("=== Creating a booking ===")
 	bookingReq := &protocol.BookReq{
 		CustomerReferenceNo: cast.ToString(time.Now().Unix()),
@@ -187,10 +187,10 @@ func handleRate(ctx context.Context, client *hotelbyte.Client, rate protocol.Roo
 		log.Printf("Booking creation failed: %v", err)
 		panic(err)
 	}
-	fmt.Printf("Booking created successfully!\n")
-	fmt.Printf("Supplier Order ID: %v\n", bookingResp.HotelOrder.SupplierReferenceNo)
-	fmt.Printf("Order Status: %d\n", bookingResp.HotelOrder.Status)
-	fmt.Printf("Customer Order ID: %v\n", bookingResp.HotelOrder.CustomerReferenceNo)
+	fmt.Printf("Booking created successfully! %s\n", Pretty(bookingResp))
+	//fmt.Printf("Supplier Order ID: %v\n", bookingResp.HotelOrder.SupplierReferenceNo)
+	//fmt.Printf("Order Status: %d\n", bookingResp.HotelOrder.Status)
+	//fmt.Printf("Customer Order ID: %v\n", bookingResp.HotelOrder.CustomerReferenceNo)
 
 	// Example 4: Query booking details
 	fmt.Println("=== Getting booking details ===")
@@ -212,7 +212,7 @@ func handleRate(ctx context.Context, client *hotelbyte.Client, rate protocol.Roo
 	})
 	if err != nil {
 		log.Printf("Cancel booking failed: %v", err)
-		panic(err)
+		return false
 	}
 	log.Printf("Cancel booking successfully, status:%+v, serviceFee:%+v\n", cancelResp.Status, cancelResp.ServiceFee)
 	return true

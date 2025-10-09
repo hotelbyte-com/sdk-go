@@ -8,9 +8,10 @@ import (
 
 // Client is the main HotelByte API client
 type Client struct {
-	config    *Config
-	transport *Transport
-	token     string
+	config      *Config
+	transport   *Transport
+	token       string
+	tokenExpiry time.Time
 }
 
 // Config represents client configuration
