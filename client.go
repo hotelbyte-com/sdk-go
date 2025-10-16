@@ -2,6 +2,7 @@
 package hotelbyte
 
 import (
+	"context"
 	"fmt"
 	"time"
 )
@@ -171,4 +172,8 @@ func (c *Client) Close() error {
 		return c.transport.Close()
 	}
 	return nil
+}
+
+func (c *Client) Do(ctx context.Context, req *Request) (*Response, error) {
+	return c.transport.Do(ctx, req)
 }

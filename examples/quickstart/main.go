@@ -18,8 +18,8 @@ import (
 func main() {
 	// Initialize SDK client with credentials (use client options API)
 	client, err := hotelbyte.NewClient(
-		hotelbyte.WithBaseURL("http://localhost:8080"),
-		//hotelbyte.WithBaseURL("https://api-test.hotelbyte.com"),
+		//hotelbyte.WithBaseURL("http://localhost:8080"),
+		hotelbyte.WithBaseURL("https://api-test.hotelbyte.com"),
 		hotelbyte.WithCredentials("hotelbyte_api_demo", "hotelbyte_api_demo"),
 		hotelbyte.WithTimeout(120*time.Second),
 	)
