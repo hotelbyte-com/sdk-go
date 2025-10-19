@@ -1,8 +1,9 @@
 package protocol
 
 import (
-	"github.com/hotelbyte-com/sdk-go/protocol/types"
 	"time"
+
+	"github.com/hotelbyte-com/sdk-go/protocol/types"
 )
 
 type HotelListReq struct {
