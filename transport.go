@@ -29,6 +29,7 @@ func NewTransport(config *Config) (*Transport, error) {
 		SetJSONMarshaler(sonic.Marshal).
 		SetJSONUnmarshaler(sonic.Unmarshal).
 		SetTransport(&http.Transport{
+			Proxy:               http.ProxyFromEnvironment,
 			MaxIdleConns:        config.HTTPConfig.MaxIdleConns,
 			MaxIdleConnsPerHost: config.HTTPConfig.MaxConnsPerHost,
 			IdleConnTimeout:     90 * time.Second,

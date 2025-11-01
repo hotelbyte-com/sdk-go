@@ -263,6 +263,8 @@ func handleRate(ctx context.Context, client *hotelbyte.Client, rate protocol.Roo
 					fee.Until.Format("2006-01-02 15:04"),
 					fee.Fee.Amount,
 					fee.Fee.Currency)
+				currentCancelFee = fee.Fee.Amount
+				currentCurrency = fee.Fee.Currency
 				break
 			}
 		}
@@ -312,6 +314,7 @@ func handleRate(ctx context.Context, client *hotelbyte.Client, rate protocol.Roo
 	} else {
 		fmt.Printf("✅ Free cancellation confirmed: no service fee\n")
 	}
+	
 	return true
 }
 
