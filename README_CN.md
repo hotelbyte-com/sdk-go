@@ -508,10 +508,9 @@ func loggedSearch(ctx context.Context, client *hotelbyte.Client, req *hotelbyte.
 ## 📚 文档
 
 - [API 参考](./api-reference.md) - 完整的 API 文档
-- [最佳实践指南](./best-practices.md) - 详细的最佳实践建议
 - [配置指南](./configuration.md) - 配置选项详解
 - [故障排除](./troubleshooting.md) - 常见问题解决方案
-- [持续改进流程](./continuous-improvement.md) - SDK 质量保证流程
+- [示例代码](./examples/README.md) - 综合使用示例
 
 ## 🧪 测试
 

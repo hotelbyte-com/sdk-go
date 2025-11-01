@@ -130,12 +130,12 @@ func handleRoom(ctx context.Context, client *hotelbyte.Client, room *protocol.Ro
 		fmt.Printf("=== Rate Package Details ===\n")
 		fmt.Printf("Rate Package ID: %s\n", rate.RatePkgId)
 		fmt.Printf("Price: %.2f %s\n", rate.Rate.NetRate.Amount, rate.Rate.NetRate.Currency)
-		
+
 		// 展示取消政策
 		fmt.Printf("=== Cancellation Policy ===\n")
-		fmt.Printf("Refundable Mode: %s\n", rate.RefundableMode)
-		
-		switch rate.RefundableMode {
+		fmt.Printf("Refundable Mode: %s\n", rate.ComputedCancelPolicy.RefundableMode)
+
+		switch rate.ComputedCancelPolicy.RefundableMode {
 		case protocol.RefundableModeFully:
 			fmt.Printf("✅ Free cancellation available\n")
 		case protocol.RefundableModePartially:
@@ -143,28 +143,23 @@ func handleRoom(ctx context.Context, client *hotelbyte.Client, room *protocol.Ro
 		case protocol.RefundableModeNo:
 			fmt.Printf("❌ Non-refundable\n")
 		}
-		
-		if !rate.RefundableUntil.IsZero() {
-			fmt.Printf("Free cancellation until: %s\n", rate.RefundableUntil.Format("2006-01-02 15:04:05 MST"))
+
+		if !rate.ComputedCancelPolicy.RefundableUntil.IsZero() {
+			fmt.Printf("Free cancellation until: %s\n", rate.ComputedCancelPolicy.RefundableUntil.Format("2006-01-02 15:04:05 MST"))
 		}
-		
-		if len(rate.CancelFees) > 0 {
+
+		if len(rate.ComputedCancelPolicy.CancelFees) > 0 {
 			fmt.Printf("Cancellation fees:\n")
-			for i, fee := range rate.CancelFees {
-				fmt.Printf("  %d. Until %s: %.2f %s\n", 
-					i+1, 
-					fee.Until.Format("2006-01-02 15:04:05 MST"), 
-					fee.Fee.Amount, 
+			for i, fee := range rate.ComputedCancelPolicy.CancelFees {
+				fmt.Printf("  %d. Until %s: %.2f %s\n",
+					i+1,
+					fee.Until.Format("2006-01-02 15:04:05 MST"),
+					fee.Fee.Amount,
 					fee.Fee.Currency)
 			}
 		}
-		
-		// 根据取消政策决定是否继续预订
-		if rate.RefundableMode == protocol.RefundableModeNo {
-			fmt.Printf("⚠️  Skipping non-refundable rate for demo purposes\n")
-			continue
-		}
-		
+
+		// 尝试所有房型，在实际取消前再根据费用判断
 		if handleRate(ctx, client, rate, sop, top) {
 			return true
 		}
@@ -248,57 +243,74 @@ func handleRate(ctx context.Context, client *hotelbyte.Client, rate protocol.Roo
 	// Example 5: Cancel booking with detailed cancellation policy information
 	fmt.Println("=== Cancelling booking ===")
 	fmt.Printf("Original cancellation policy for this rate:\n")
-	fmt.Printf("- Refundable Mode: %s\n", rate.RefundableMode)
-	
-	if len(rate.CancelFees) > 0 {
-		fmt.Printf("- Expected cancellation fees based on booking time:\n")
-		now := time.Now()
-		for i, fee := range rate.CancelFees {
+	fmt.Printf("- Refundable Mode: %s\n", rate.ComputedCancelPolicy.RefundableMode)
+
+	// 根据 cancel_policy_converter.go 的语义：
+	// Until 表示时间窗口的结束时间，在该时间段内取消收取对应的 Fee
+	// 先检查当前时间点的取消费用，决定是否进行取消
+	now := time.Now()
+	var currentCancelFee float64
+	var currentCurrency string
+
+	if len(rate.ComputedCancelPolicy.CancelFees) > 0 {
+		fmt.Printf("- Expected cancellation fees based on current time:\n")
+		for _, fee := range rate.ComputedCancelPolicy.CancelFees {
 			if now.Before(fee.Until) {
-				fmt.Printf("  Current fee (until %s): %.2f %s\n", 
-					fee.Until.Format("2006-01-02 15:04"), 
-					fee.Fee.Amount, 
+				// 当前时间在这个时间窗口内，使用该窗口的费用
+				currentCancelFee = fee.Fee.Amount
+				currentCurrency = fee.Fee.Currency
+				fmt.Printf("  Current fee (until %s): %.2f %s\n",
+					fee.Until.Format("2006-01-02 15:04"),
+					fee.Fee.Amount,
 					fee.Fee.Currency)
 				break
-			} else if i == len(rate.CancelFees)-1 {
-				fmt.Printf("  Current fee: %.2f %s (final penalty)\n", 
-					fee.Fee.Amount, 
-					fee.Fee.Currency)
 			}
+		}
+		// 如果所有窗口都已过期，使用最后一个窗口的费用
+		if currentCurrency == "" && len(rate.ComputedCancelPolicy.CancelFees) > 0 {
+			lastFee := rate.ComputedCancelPolicy.CancelFees[len(rate.ComputedCancelPolicy.CancelFees)-1]
+			currentCancelFee = lastFee.Fee.Amount
+			currentCurrency = lastFee.Fee.Currency
+			fmt.Printf("  Current fee: %.2f %s (final penalty)\n",
+				currentCancelFee,
+				currentCurrency)
 		}
 	} else {
 		fmt.Printf("- No cancellation fees expected\n")
 	}
-	
+
+	// 只取消免费取消的订单，避免产生实际费用
+	if currentCancelFee > 0 {
+		fmt.Printf("⚠️  Skipping cancellation: Current cancellation fee is %.2f %s (time: %s)\n",
+			currentCancelFee, currentCurrency, now.Format("2006-01-02 15:04:05"))
+		fmt.Printf("ℹ️  Trying next rate package...\n")
+		return false
+	}
+
+	fmt.Printf("✅ Current cancellation is free, proceeding with cancellation\n")
+
 	cancelResp, err := client.Cancel(ctx, &protocol.CancelReq{
 		CustomerReferenceNo: bookingReq.CustomerReferenceNo,
 		TestOption:          top,
 	})
 	if err != nil {
 		log.Printf("❌ Cancel booking failed: %v", err)
+		log.Printf("ℹ️  继续尝试下一个房型...\n")
 		return false
 	}
-	
+
 	fmt.Printf("✅ Cancel booking successfully!\n")
 	fmt.Printf("- Final status: %+v\n", cancelResp.Status)
-	fmt.Printf("- Actual service fee charged: %.2f %s\n", 
-		cancelResp.ServiceFee.Amount, 
+	fmt.Printf("- Actual service fee charged: %.2f %s\n",
+		cancelResp.ServiceFee.Amount,
 		cancelResp.ServiceFee.Currency)
-	
-	// 比较预期费用和实际费用
-	if len(rate.CancelFees) > 0 {
-		now := time.Now()
-		for _, fee := range rate.CancelFees {
-			if now.Before(fee.Until) {
-				if fee.Fee.Amount != cancelResp.ServiceFee.Amount {
-					fmt.Printf("⚠️  Note: Expected fee (%.2f) differs from actual fee (%.2f)\n", 
-						fee.Fee.Amount, cancelResp.ServiceFee.Amount)
-				} else {
-					fmt.Printf("✅ Cancellation fee matches expectation\n")
-				}
-				break
-			}
-		}
+
+	// 验证取消费用应该为 0（免费取消）
+	if cancelResp.ServiceFee.Amount > 0 {
+		fmt.Printf("⚠️  Warning: Expected free cancellation but actual fee is %.2f %s\n",
+			cancelResp.ServiceFee.Amount, cancelResp.ServiceFee.Currency)
+	} else {
+		fmt.Printf("✅ Free cancellation confirmed: no service fee\n")
 	}
 	return true
 }
