@@ -250,26 +250,43 @@ func handleRate(ctx context.Context, client *hotelbyte.Client, rate protocol.Roo
 	fmt.Printf("Original cancellation policy for this rate:\n")
 	fmt.Printf("- Refundable Mode: %s\n", rate.RefundableMode)
 	
+	// 检查当前是否会产生取消费用
+	now := time.Now()
+	var currentCancelFee float64
+	var currentCurrency string
+	
 	if len(rate.CancelFees) > 0 {
-		fmt.Printf("- Expected cancellation fees based on booking time:\n")
-		now := time.Now()
+		fmt.Printf("- Cancellation fee schedule:\n")
 		for i, fee := range rate.CancelFees {
 			if now.Before(fee.Until) {
 				fmt.Printf("  Current fee (until %s): %.2f %s\n", 
 					fee.Until.Format("2006-01-02 15:04"), 
 					fee.Fee.Amount, 
 					fee.Fee.Currency)
+				currentCancelFee = fee.Fee.Amount
+				currentCurrency = fee.Fee.Currency
 				break
 			} else if i == len(rate.CancelFees)-1 {
 				fmt.Printf("  Current fee: %.2f %s (final penalty)\n", 
 					fee.Fee.Amount, 
 					fee.Fee.Currency)
+				currentCancelFee = fee.Fee.Amount
+				currentCurrency = fee.Fee.Currency
 			}
 		}
 	} else {
 		fmt.Printf("- No cancellation fees expected\n")
 	}
 	
+	// 只取消免费取消的订单，避免产生实际费用
+	if currentCancelFee > 0 {
+		fmt.Printf("⚠️  Skipping cancellation: Would incur a fee of %.2f %s\n", 
+			currentCancelFee, currentCurrency)
+		fmt.Printf("✅ Booking test completed successfully (cancellation skipped to avoid fees)\n")
+		return true
+	}
+	
+	fmt.Printf("✅ Proceeding with free cancellation\n")
 	cancelResp, err := client.Cancel(ctx, &protocol.CancelReq{
 		CustomerReferenceNo: bookingReq.CustomerReferenceNo,
 		TestOption:          top,
@@ -285,21 +302,14 @@ func handleRate(ctx context.Context, client *hotelbyte.Client, rate protocol.Roo
 		cancelResp.ServiceFee.Amount, 
 		cancelResp.ServiceFee.Currency)
 	
-	// 比较预期费用和实际费用
-	if len(rate.CancelFees) > 0 {
-		now := time.Now()
-		for _, fee := range rate.CancelFees {
-			if now.Before(fee.Until) {
-				if fee.Fee.Amount != cancelResp.ServiceFee.Amount {
-					fmt.Printf("⚠️  Note: Expected fee (%.2f) differs from actual fee (%.2f)\n", 
-						fee.Fee.Amount, cancelResp.ServiceFee.Amount)
-				} else {
-					fmt.Printf("✅ Cancellation fee matches expectation\n")
-				}
-				break
-			}
-		}
+	// 验证取消费用应该为 0
+	if cancelResp.ServiceFee.Amount != 0 {
+		fmt.Printf("⚠️  Warning: Expected free cancellation but got fee of %.2f %s\n", 
+			cancelResp.ServiceFee.Amount, cancelResp.ServiceFee.Currency)
+	} else {
+		fmt.Printf("✅ Free cancellation confirmed\n")
 	}
+	
 	return true
 }
 
