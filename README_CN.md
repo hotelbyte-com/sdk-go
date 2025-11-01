@@ -4,35 +4,35 @@
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Documentation](https://img.shields.io/badge/Documentation-GoDoc-blue.svg)](https://pkg.go.dev/github.com/hotelbyte-com/sdk-go)
 
-HotelByte Go SDK is the official Go language software development kit for the Hotel API Distribution Platform, providing simple, efficient, and type-safe API interface access capabilities.
+HotelByte Go SDK 是酒店 API 分销平台的官方 Go 语言软件开发工具包，提供简单、高效、类型安全的 API 接口访问能力。
 
-## ✨ Core Features
+## ✨ 核心特性
 
-- **🔗 Unified Interface**: Aggregates multiple hotel suppliers (HotelBeds, Dida, DerbySoft, etc.) with consistent API experience
-- **🚀 High Performance**: Built on Go's concurrency features, supporting high-concurrency request processing
-- **🛡️ Type Safety**: Complete type definitions with compile-time error checking
-- **🔄 Auto Retry**: Built-in intelligent retry mechanism for automatic handling of network anomalies and temporary failures
-- **📝 Comprehensive Documentation**: Detailed API documentation and usage examples
-- **🧪 Test Coverage**: High test coverage ensuring SDK stability
-- **🌐 Internationalization**: Support for Chinese and English languages
+- **🔗 统一接口**：聚合多家酒店供应商（HotelBeds、Dida、DerbySoft 等），提供一致的 API 体验
+- **🚀 高性能**：基于 Go 语言的并发特性，支持高并发请求处理
+- **🛡️ 类型安全**：完整的类型定义，编译时错误检查
+- **🔄 自动重试**：内置智能重试机制，自动处理网络异常和临时故障
+- **📝 完善文档**：详细的 API 文档和使用示例
+- **🧪 测试覆盖**：高测试覆盖率，保证 SDK 稳定性
+- **🌐 多语言支持**：支持中英文国际化
 
-## 📦 Installation
+## 📦 安装
 
-Install the SDK using Go modules:
+使用 Go modules 安装 SDK：
 
 ```bash
 go get github.com/hotelbyte-com/sdk-go
 ```
 
-Import in your code:
+在你的代码中导入：
 
 ```go
 import "github.com/hotelbyte-com/sdk-go"
 ```
 
-## 🚀 Quick Start
+## 🚀 快速开始
 
-### Basic Configuration
+### 基础配置
 
 ```go
 package main
@@ -46,7 +46,7 @@ import (
 )
 
 func main() {
-    // Create client
+    // 创建客户端
     client, err := hotelbyte.NewClient(
         hotelbyte.WithCredentials("your-app-key", "your-app-secret"),
         hotelbyte.WithBaseURL("https://api.hotelbyte.com"),
@@ -57,7 +57,7 @@ func main() {
     }
     defer client.Close()
 
-    // Search hotels
+    // 搜索酒店
     ctx := context.Background()
     resp, err := client.SearchHotels(ctx, &hotelbyte.SearchHotelsRequest{
         DestinationID: "beijing",
@@ -70,14 +70,14 @@ func main() {
         panic(err)
     }
 
-    fmt.Printf("Found %d hotels\n", len(resp.Hotels))
+    fmt.Printf("找到 %d 家酒店\n", len(resp.Hotels))
     for _, hotel := range resp.Hotels {
         fmt.Printf("- %s: %s\n", hotel.Name, hotel.Address)
     }
 }
 ```
 
-### Environment Variable Configuration
+### 环境变量配置
 
 ```bash
 export HOTELBYTE_APP_KEY="your-app-key"
@@ -86,7 +86,7 @@ export HOTELBYTE_BASE_URL="https://api.hotelbyte.com"
 ```
 
 ```go
-// Create client using environment variables
+// 使用环境变量创建客户端
 func NewClientFromEnv() (*hotelbyte.Client, error) {
     return hotelbyte.NewClient(
         hotelbyte.WithCredentials(
@@ -98,12 +98,12 @@ func NewClientFromEnv() (*hotelbyte.Client, error) {
 }
 ```
 
-## 📖 Main Features
+## 📖 主要功能
 
-### 🔍 Hotel Search
+### 🔍 酒店搜索
 
 ```go
-// Basic search
+// 基础搜索
 resp, err := client.SearchHotels(ctx, &hotelbyte.SearchHotelsRequest{
     DestinationID: "beijing",
     CheckIn:       time.Now().AddDate(0, 0, 7),
@@ -112,7 +112,7 @@ resp, err := client.SearchHotels(ctx, &hotelbyte.SearchHotelsRequest{
     RoomCount:     1,
 })
 
-// Advanced search parameters
+// 高级搜索参数
 resp, err := client.SearchHotels(ctx, &hotelbyte.SearchHotelsRequest{
     DestinationID: "beijing",
     CheckIn:       time.Now().AddDate(0, 0, 7),
@@ -122,38 +122,38 @@ resp, err := client.SearchHotels(ctx, &hotelbyte.SearchHotelsRequest{
     HotelIDs:      []string{"hotel-1", "hotel-2"},
     MinRating:     4,
     MaxPrice:      1000.00,
-    Currency:      "USD",
-    Language:      "en-US",
+    Currency:      "CNY",
+    Language:      "zh-CN",
 })
 ```
 
-### 🏨 Hotel Details
+### 🏨 酒店详情
 
 ```go
-// Get detailed hotel information
+// 获取酒店详细信息
 details, err := client.GetHotelDetails(ctx, "hotel-id")
 if err != nil {
     return err
 }
 
-fmt.Printf("Hotel Name: %s\n", details.Name)
-fmt.Printf("Hotel Address: %s\n", details.Address)
-fmt.Printf("Hotel Facilities: %v\n", details.Facilities)
+fmt.Printf("酒店名称: %s\n", details.Name)
+fmt.Printf("酒店地址: %s\n", details.Address)
+fmt.Printf("酒店设施: %v\n", details.Facilities)
 ```
 
-### 📋 Booking Management
+### 📋 预订管理
 
 ```go
-// Create booking
+// 创建预订
 booking, err := client.CreateBooking(ctx, &hotelbyte.CreateBookingRequest{
     HotelID:    "hotel-id",
     RoomTypeID: "room-type-id",
     CheckIn:    time.Now().AddDate(0, 0, 7),
     CheckOut:   time.Now().AddDate(0, 0, 9),
     GuestInfo: hotelbyte.GuestInfo{
-        Name:    "John Doe",
-        Email:   "john.doe@example.com",
-        Phone:   "+1-555-1234-5678",
+        Name:    "张三",
+        Email:   "zhangsan@example.com",
+        Phone:   "+86-13800138000",
     },
     PaymentInfo: hotelbyte.PaymentInfo{
         Method: "credit_card",
@@ -161,64 +161,64 @@ booking, err := client.CreateBooking(ctx, &hotelbyte.CreateBookingRequest{
     },
 })
 
-// Query booking status
+// 查询预订状态
 status, err := client.GetBookingStatus(ctx, booking.BookingID)
 
-// Cancel booking
+// 取消预订
 err = client.CancelBooking(ctx, booking.BookingID)
 ```
 
-### 🔐 Authentication Management
+### 🔐 认证管理
 
 ```go
-// SDK handles authentication automatically, but manual management is also possible
+// SDK 会自动处理认证，但也可以手动管理
 auth := client.Auth()
 
-// Check authentication status
+// 检查认证状态
 if auth.IsTokenValid() {
-    fmt.Println("Authentication is valid")
+    fmt.Println("认证有效")
 }
 
-// Manually refresh authentication
+// 手动刷新认证
 err := auth.RefreshToken(ctx)
 if err != nil {
-    fmt.Printf("Authentication refresh failed: %v\n", err)
+    fmt.Printf("认证刷新失败: %v\n", err)
 }
 ```
 
-## ⚙️ Client Configuration
+## ⚙️ 客户端配置
 
-### Basic Configuration Options
+### 基础配置选项
 
 ```go
 client, err := hotelbyte.NewClient(
-    // Authentication information
+    // 认证信息
     hotelbyte.WithCredentials("app-key", "app-secret"),
 
-    // Basic configuration
+    // 基础配置
     hotelbyte.WithBaseURL("https://api.hotelbyte.com"),
     hotelbyte.WithTimeout(30 * time.Second),
     hotelbyte.WithUserAgent("my-app/1.0"),
 
-    // Retry configuration
+    // 重试配置
     hotelbyte.WithRetryConfig(3, time.Second, 30*time.Second),
 
-    // HTTP configuration
+    // HTTP 配置
     hotelbyte.WithHTTPConfig(hotelbyte.HTTPConfig{
         MaxIdleConns:    100,
         MaxConnsPerHost: 10,
         IdleConnTimeout: 90 * time.Second,
     }),
 
-    // Debug mode
+    // 调试模式
     hotelbyte.WithDebug(true),
 )
 ```
 
-### Advanced Configuration
+### 高级配置
 
 ```go
-// Custom HTTP client
+// 自定义 HTTP 客户端
 httpClient := &http.Client{
     Timeout: 30 * time.Second,
     Transport: &http.Transport{
@@ -233,7 +233,7 @@ client, err := hotelbyte.NewClient(
     hotelbyte.WithCredentials("app-key", "app-secret"),
 )
 
-// Custom logger
+// 自定义日志记录器
 logger := logrus.New()
 logger.SetLevel(logrus.InfoLevel)
 
@@ -243,41 +243,41 @@ client, err := hotelbyte.NewClient(
 )
 ```
 
-## 🔧 Error Handling
+## 🔧 错误处理
 
-### Error Type Checking
+### 错误类型检查
 
 ```go
 resp, err := client.SearchHotels(ctx, req)
 if err != nil {
     switch {
     case hotelbyte.IsAuthenticationError(err):
-        fmt.Println("Authentication failed, please check credentials")
+        fmt.Println("认证失败，请检查凭据")
     case hotelbyte.IsValidationError(err):
-        fmt.Println("Request parameter validation failed")
+        fmt.Println("请求参数验证失败")
     case hotelbyte.IsRateLimitError(err):
-        fmt.Println("Request rate too high, please try again later")
+        fmt.Println("请求频率过高，请稍后重试")
     case hotelbyte.IsSystemError(err):
-        fmt.Println("System error, please try again later")
+        fmt.Println("系统错误，请稍后重试")
     case hotelbyte.IsTimeoutError(err):
-        fmt.Println("Request timeout")
+        fmt.Println("请求超时")
     default:
-        fmt.Printf("Unknown error: %v\n", err)
+        fmt.Printf("未知错误: %v\n", err)
     }
     return
 }
 ```
 
-### Custom Retry Strategy
+### 自定义重试策略
 
 ```go
-// Implement custom retry logic
+// 实现自定义重试逻辑
 func searchWithRetry(ctx context.Context, client *hotelbyte.Client, req *hotelbyte.SearchHotelsRequest) (*hotelbyte.SearchHotelsResponse, error) {
     var lastErr error
 
     for attempt := 0; attempt < 3; attempt++ {
         if attempt > 0 {
-            // Exponential backoff
+            // 指数退避
             delay := time.Duration(1<<uint(attempt-1)) * time.Second
             select {
             case <-ctx.Done():
@@ -293,19 +293,19 @@ func searchWithRetry(ctx context.Context, client *hotelbyte.Client, req *hotelby
 
         lastErr = err
 
-        // Check if retryable
+        // 判断是否可重试
         if !hotelbyte.IsRateLimitError(err) && !hotelbyte.IsSystemError(err) {
             break
         }
     }
 
-    return nil, fmt.Errorf("search failed after 3 retries: %w", lastErr)
+    return nil, fmt.Errorf("搜索失败，已重试3次: %w", lastErr)
 }
 ```
 
-## 🚀 Concurrent Processing
+## 🚀 并发处理
 
-### Concurrent Search
+### 并发搜索
 
 ```go
 func concurrentSearch(ctx context.Context, client *hotelbyte.Client, destinations []string) map[string]*hotelbyte.SearchHotelsResponse {
@@ -313,7 +313,7 @@ func concurrentSearch(ctx context.Context, client *hotelbyte.Client, destination
     var mu sync.Mutex
     var wg sync.WaitGroup
 
-    // Limit concurrent count
+    // 限制并发数
     semaphore := make(chan struct{}, 5)
 
     for _, dest := range destinations {
@@ -321,7 +321,7 @@ func concurrentSearch(ctx context.Context, client *hotelbyte.Client, destination
         go func(destination string) {
             defer wg.Done()
 
-            // Acquire semaphore
+            // 获取信号量
             semaphore <- struct{}{}
             defer func() { <-semaphore }()
 
@@ -347,14 +347,14 @@ func concurrentSearch(ctx context.Context, client *hotelbyte.Client, destination
 }
 ```
 
-## 📊 Performance Optimization
+## 📊 性能优化
 
-### Caching Strategy
+### 缓存策略
 
 ```go
 type CachedSearcher struct {
     client *hotelbyte.Client
-    cache  *sync.Map // Use Redis in production
+    cache  *sync.Map // 生产环境建议使用 Redis
 }
 
 func NewCachedSearcher(client *hotelbyte.Client) *CachedSearcher {
@@ -365,23 +365,23 @@ func NewCachedSearcher(client *hotelbyte.Client) *CachedSearcher {
 }
 
 func (cs *CachedSearcher) SearchHotels(ctx context.Context, req *hotelbyte.SearchHotelsRequest) (*hotelbyte.SearchHotelsResponse, error) {
-    // Generate cache key
+    // 生成缓存键
     key := cs.generateCacheKey(req)
 
-    // Check cache
+    // 检查缓存
     if cached, ok := cs.cache.Load(key); ok {
         if entry, ok := cached.(*cacheEntry); ok && !entry.isExpired() {
             return entry.data, nil
         }
     }
 
-    // Cache miss, call API
+    // 缓存未命中，调用 API
     resp, err := cs.client.SearchHotels(ctx, req)
     if err != nil {
         return nil, err
     }
 
-    // Cache result
+    // 缓存结果
     cs.cache.Store(key, &cacheEntry{
         data:      resp,
         expiresAt: time.Now().Add(10 * time.Minute),
@@ -400,25 +400,25 @@ func (e *cacheEntry) isExpired() bool {
 }
 ```
 
-## 📝 Example Code
+## 📝 示例代码
 
-Check the [examples](./examples) directory for more detailed examples:
+查看 [examples](./examples) 目录获取更多详细示例：
 
-- **[Quick Start](./examples/quickstart/)** - Simplest usage example
-- **[Authentication](./examples/authentication/)** - Authentication operations
-- **[Hotel Search](./examples/hotel-search/)** - Search functionality examples
-- **[Booking Management](./examples/booking-management/)** - Booking process examples
-- **[Error Handling](./examples/error-handling/)** - Complete error handling strategies
-- **[Concurrent Processing](./examples/concurrent-processing/)** - Concurrent request processing
-- **[Performance Optimization](./examples/caching/)** - Caching and performance optimization
-- **[Monitoring Integration](./examples/monitoring/)** - Monitoring and metrics collection
+- **[快速开始](./examples/quickstart/)** - 最简单的使用示例
+- **[认证管理](./examples/authentication/)** - 认证相关操作
+- **[酒店搜索](./examples/hotel-search/)** - 搜索功能示例
+- **[预订管理](./examples/booking-management/)** - 预订流程示例
+- **[错误处理](./examples/error-handling/)** - 完整的错误处理策略
+- **[并发处理](./examples/concurrent-processing/)** - 并发请求处理
+- **[性能优化](./examples/caching/)** - 缓存和性能优化
+- **[监控集成](./examples/monitoring/)** - 监控和指标收集
 
-## 🔧 Best Practices
+## 🔧 最佳实践
 
-### 1. Client Management
+### 1. 客户端管理
 
 ```go
-// ✅ Recommended: Global singleton pattern
+// ✅ 推荐：全局单例模式
 var hotelClient *hotelbyte.Client
 
 func init() {
@@ -441,7 +441,7 @@ func GetHotelClient() *hotelbyte.Client {
 }
 ```
 
-### 2. Environment Variable Configuration
+### 2. 环境变量配置
 
 ```go
 type Config struct {
@@ -468,7 +468,7 @@ func NewHotelClient() (*hotelbyte.Client, error) {
 }
 ```
 
-### 3. Structured Logging
+### 3. 结构化日志
 
 ```go
 func loggedSearch(ctx context.Context, client *hotelbyte.Client, req *hotelbyte.SearchHotelsRequest) (*hotelbyte.SearchHotelsResponse, error) {
@@ -481,7 +481,7 @@ func loggedSearch(ctx context.Context, client *hotelbyte.Client, req *hotelbyte.
         "room_count":    req.RoomCount,
     })
 
-    logger.Info("Starting hotel search")
+    logger.Info("开始搜索酒店")
     start := time.Now()
 
     resp, err := client.SearchHotels(ctx, req)
@@ -491,7 +491,7 @@ func loggedSearch(ctx context.Context, client *hotelbyte.Client, req *hotelbyte.
         logger.WithFields(logrus.Fields{
             "error":    err.Error(),
             "duration": duration,
-        }).Error("Hotel search failed")
+        }).Error("酒店搜索失败")
         return nil, err
     }
 
@@ -499,74 +499,74 @@ func loggedSearch(ctx context.Context, client *hotelbyte.Client, req *hotelbyte.
         "hotel_count": len(resp.Hotels),
         "total":       resp.Total,
         "duration":    duration,
-    }).Info("Hotel search successful")
+    }).Info("酒店搜索成功")
 
     return resp, nil
 }
 ```
 
-## 📚 Documentation
+## 📚 文档
 
-- [API Reference](./api-reference.md) - Complete API documentation
-- [Best Practices Guide](./best-practices.md) - Detailed best practice recommendations
-- [Configuration Guide](./configuration.md) - Configuration options details
-- [Troubleshooting](./troubleshooting.md) - Common problem solutions
-- [Continuous Improvement Process](./continuous-improvement.md) - SDK quality assurance process
+- [API 参考](./api-reference.md) - 完整的 API 文档
+- [最佳实践指南](./best-practices.md) - 详细的最佳实践建议
+- [配置指南](./configuration.md) - 配置选项详解
+- [故障排除](./troubleshooting.md) - 常见问题解决方案
+- [持续改进流程](./continuous-improvement.md) - SDK 质量保证流程
 
-## 🧪 Testing
+## 🧪 测试
 
-Run tests:
+运行测试：
 
 ```bash
-# Run all tests
+# 运行所有测试
 go test ./...
 
-# Run tests with coverage report
+# 运行测试并生成覆盖率报告
 go test -cover ./...
 
-# Run benchmarks
+# 运行基准测试
 go test -bench=. ./...
 
-# Run tests for specific package
+# 运行特定包的测试
 go test ./protocol/...
 ```
 
-## 🤝 Contributing
+## 🤝 贡献
 
-We welcome community contributions! Please check the [Contributing Guide](./CONTRIBUTING.md) to learn how to participate in project development.
+我们欢迎社区贡献！请查看 [贡献指南](./CONTRIBUTING.md) 了解如何参与项目开发。
 
-### Contribution Process
+### 贡献流程
 
-1. Fork the project repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Create a Pull Request
+1. Fork 项目仓库
+2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
+3. 提交更改 (`git commit -m 'Add some amazing feature'`)
+4. 推送到分支 (`git push origin feature/amazing-feature`)
+5. 创建 Pull Request
 
-### Code Standards
+### 代码规范
 
-- Follow Go official code standards
-- Add appropriate test cases
-- Update relevant documentation
-- Ensure all tests pass
+- 遵循 Go 官方代码规范
+- 添加适当的测试用例
+- 更新相关文档
+- 确保所有测试通过
 
-## 📄 License
+## 📄 许可证
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
 
-## 🆘 Support
+## 🆘 支持
 
-If you encounter problems during use:
+如果您在使用过程中遇到问题：
 
-- 📧 **Email Support**: developers@hotelbyte.com
-- 🐛 **Issue Reporting**: [GitHub Issues](https://github.com/hotelbyte-com/hotel-be/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/hotelbyte-com/hotel-be/discussions)
-- 📖 **Project Documentation**: [HotelByte Technical Documentation](https://docs.hotelbyte.com)
+- 📧 **邮件支持**: developers@hotelbyte.com
+- 🐛 **问题反馈**: [GitHub Issues](https://github.com/hotelbyte-com/hotel-be/issues)
+- 💬 **讨论交流**: [GitHub Discussions](https://github.com/hotelbyte-com/hotel-be/discussions)
+- 📖 **项目文档**: [HotelByte 技术文档](https://docs.hotelbyte.com)
 
-## 🌟 Acknowledgments
+## 🌟 致谢
 
-Thanks to all developers and users who have contributed to the HotelByte SDK!
+感谢所有为 HotelByte SDK 做出贡献的开发者和用户！
 
 ---
 
-**Note**: This SDK is the official Go language implementation of the HotelByte Hotel API Distribution Platform. If you need SDKs in other languages, please contact us or check our other projects.
+**注意**: 本 SDK 是 HotelByte 酒店API分销平台的官方 Go 语言实现。如果您对其他语言的 SDK 有需求，请联系我们或查看我们的其他项目。
