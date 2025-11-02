@@ -48,22 +48,6 @@ func NewTransport(config *Config) (*Transport, error) {
 	}, nil
 }
 
-// Request represents HTTP request
-type Request struct {
-	Method  string
-	Path    string
-	Query   url.Values
-	Headers map[string]string
-	Body    interface{}
-}
-
-// Response represents HTTP response
-type Response struct {
-	StatusCode int
-	Headers    http.Header
-	Body       []byte
-}
-
 // Do executes HTTP request
 func (t *Transport) Do(ctx context.Context, req *Request) (*Response, error) {
 	// Build Resty request

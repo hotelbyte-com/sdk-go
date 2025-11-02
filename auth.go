@@ -35,7 +35,7 @@ func (s *Client) Authenticate(ctx context.Context) error {
 		return err
 	}
 
-	r, err := types.NewResponse[protocol.AuthResp](resp.StatusCode, resp.Body)
+	r, err := types.NewResponseData[protocol.AuthResp](resp.StatusCode, resp.Body)
 	if err != nil {
 		return err
 	}

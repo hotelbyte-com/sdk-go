@@ -15,6 +15,10 @@ type Client struct {
 	tokenExpiry time.Time
 }
 
+func (s *Client) Key() string {
+	return s.config.Credentials.AppKey
+}
+
 // Config represents client configuration
 type Config struct {
 	BaseURL     string
@@ -162,18 +166,18 @@ func WithRetryConfig(maxRetries int, initialDelay, maxDelay time.Duration) Clien
 }
 
 // GetConfig returns the client configuration
-func (c *Client) GetConfig() *Config {
-	return c.config
+func (s *Client) GetConfig() *Config {
+	return s.config
 }
 
 // Close closes the client
-func (c *Client) Close() error {
-	if c.transport != nil {
-		return c.transport.Close()
+func (s *Client) Close() error {
+	if s.transport != nil {
+		return s.transport.Close()
 	}
 	return nil
 }
 
-func (c *Client) Do(ctx context.Context, req *Request) (*Response, error) {
-	return c.transport.Do(ctx, req)
+func (s *Client) Do(ctx context.Context, req *Request) (*Response, error) {
+	return s.transport.Do(ctx, req)
 }

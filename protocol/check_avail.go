@@ -9,6 +9,7 @@ type CheckAvailResp struct {
 	Status      CheckAvailStatus `json:"status"`                                // Status indicates whether the room is available or not, or other unavailable causes like credit warning status
 	RoomRatePkg *RoomRatePkg     `json:"roomRatePkg,omitzero"`                  // with updated ARI
 	Supplier    int64            `json:"supplier,omitempty" apidoc:"HotelCode"` // supplier information for dynamic download
+	Header      CommonHeader     `json:"header"`
 }
 type CheckAvailStatus int
 

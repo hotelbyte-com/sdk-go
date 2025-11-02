@@ -25,7 +25,8 @@ type Phone struct {
 	Number        string `json:"number,omitempty"`        // 525757249
 }
 type BookResp struct {
-	HotelOrder *HotelOrder `json:"hotelOrder,omitzero"` // HotelOrder contains the hotel order information
+	HotelOrder *HotelOrder  `json:"hotelOrder,omitzero"` // HotelOrder contains the hotel order information
+	Header     CommonHeader `json:"header"`
 }
 
 // OrderHotelInfo contains hotel information associated with an order

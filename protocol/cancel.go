@@ -9,6 +9,7 @@ type CancelReq struct {
 }
 
 type CancelResp struct {
-	ServiceFee types.Money `json:"serviceFee"` // ServiceFee is the service fee charged by supplier, not refunded
-	Status     OrderStatus `json:"status"`     // Status indicates the current status of the order after cancellation
+	ServiceFee types.Money  `json:"serviceFee"` // ServiceFee is the service fee charged by supplier, not refunded
+	Status     OrderStatus  `json:"status"`     // Status indicates the current status of the order after cancellation
+	Header     CommonHeader `json:"header"`
 }
