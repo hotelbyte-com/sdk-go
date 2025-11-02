@@ -24,5 +24,11 @@ type TestOption struct {
 	Test string `json:"test" api.header:"Test"` // Test flags. support key-value pairs, eg, "hotel=HC1&scenario=priceChange".If it's not recognized by server, the call will behave as if the "Test" header was not provided.
 }
 type HotelRatesResp struct {
-	Rooms []*Room `json:"rooms"`
+	Rooms  []*Room      `json:"rooms"`
+	Header CommonHeader `json:"header"`
+}
+
+type CommonHeader struct {
+	RequestId string `json:"requestId,omitempty" api.header:"Request-Id"` // for identifying the current request, it can't be duplicate
+	TraceId   string `json:"traceId,omitempty" api.header:"Trace-Id"`     // for tracing a group of requests
 }

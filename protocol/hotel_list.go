@@ -25,6 +25,7 @@ type HotelListResp struct {
 	List  HotelList          `json:"list,omitzero" required:"true"`
 	Basic HotelListBasicInfo `json:"basic,omitzero" required:"true"`
 	types.PageResp
+	Header CommonHeader `json:"header"`
 }
 
 type HotelList []*Hotel

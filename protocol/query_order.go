@@ -18,4 +18,5 @@ type QueryOrdersReq struct {
 // QueryOrdersResp represents the response containing multiple hotel orders
 type QueryOrdersResp struct {
 	Orders []*HotelOrder `json:"orders"` // Orders contains a list of hotel order information
+	Header CommonHeader  `json:"header"`
 }
