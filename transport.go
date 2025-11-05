@@ -3,14 +3,15 @@ package hotelbyte
 import (
 	"context"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/bytedance/sonic"
 	"github.com/go-resty/resty/v2"
+	"github.com/hotelbyte-com/sdk-go/protocol/types"
 )
 
 // Transport represents HTTP transport layer
@@ -49,7 +50,7 @@ func NewTransport(config *Config) (*Transport, error) {
 }
 
 // Do executes HTTP request
-func (t *Transport) Do(ctx context.Context, req *Request) (*Response, error) {
+func (t *Transport) Do(ctx context.Context, req *types.HttpRequest) (*types.HttpResponse, error) {
 	// Build Resty request
 	r := t.client.R().SetContext(ctx)
 
@@ -87,7 +88,7 @@ func (t *Transport) Do(ctx context.Context, req *Request) (*Response, error) {
 	if sb.Len() > 0 {
 		logrus.WithContext(ctx).Infof("%s Response headers: %s", req.Path, strings.TrimSpace(sb.String()))
 	}
-	return &Response{
+	return &types.HttpResponse{
 		StatusCode: resp.StatusCode(),
 		Headers:    resp.Header(),
 		Body:       resp.Body(),
