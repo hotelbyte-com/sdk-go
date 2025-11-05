@@ -5,6 +5,8 @@ import (
 	"context"
 	"fmt"
 	"time"
+
+	"github.com/hotelbyte-com/sdk-go/protocol/types"
 )
 
 // Client is the main HotelByte API client
@@ -181,3 +183,6 @@ func (s *Client) Close() error {
 func (s *Client) Do(ctx context.Context, req *Request) (*Response, error) {
 	return s.transport.Do(ctx, req)
 }
+
+type Request = types.HttpRequest
+type Response = types.HttpResponse
