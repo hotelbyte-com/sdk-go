@@ -83,8 +83,18 @@ func (r RefundableMode) Bool() bool {
 }
 
 type RatePlan struct {
+	// Board information - Standard meal plan following liteapi standard
+	Board Board `json:"board,omitzero"` // Meal plan information (BoardId, BoardName, BoardDesc)
+
 	// Taxes and fees, generally collected by hotels on behalf of the government, are fixed costs and do not participate in the price increase during the distribution process. Therefore, they are listed separately.
 	Tax Tax `json:"tax,omitzero"`
+}
+
+// Board represents the meal plan information with i18n support
+type Board struct {
+	BoardId   BoardId    `json:"boardId"`                     // Meal plan code (standard enum)
+	BoardName types.I18N `json:"boardName,omitzero"`         // Meal plan name (multilingual)
+	BoardDesc types.I18N `json:"boardDesc,omitzero"`         // Meal plan description (multilingual)
 }
 type TaxItem struct {
 	TaxType string      `json:"taxType"` // VAT, SERVICE_CHARGE, CITY_TAX, etc.
