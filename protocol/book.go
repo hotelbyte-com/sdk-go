@@ -1,8 +1,9 @@
 package protocol
 
 import (
-	"github.com/hotelbyte-com/sdk-go/protocol/types"
 	"time"
+
+	"github.com/hotelbyte-com/sdk-go/protocol/types"
 )
 
 type BookReq struct {
@@ -62,6 +63,7 @@ type HotelOrder struct {
 // OrderBasic contains the fundamental information about a hotel order
 type OrderBasic struct {
 	Status              OrderStatus   `json:"status" required:"true" example:"1"` // OrderStatus indicates the current status of the order
+	StatusRemark        string        `json:"statusRemark" example:"aborted"`
 	CheckIn             types.DateInt `json:"checkIn" required:"true" example:"2026-01-01"`
 	CheckOut            types.DateInt `json:"checkOut" required:"true" example:"2026-01-03"`
 	NightCount          int64         `json:"nightCount,omitzero"`                                                                                                                                                           // Number of nights for the stay
@@ -74,7 +76,7 @@ type OrderBasic struct {
 	CancelReason        string        `json:"cancelReason" example:"Customer requested cancellation"`                                                                                                                        // CancelReason contains the reason if the order was cancelled
 	RefundedPrice       types.Money   `json:"refundedPrice,omitzero" example:"{\"amount\":99.00,\"currency\":\"USD\"}"`                                                                                                      // RefundedPrice is the amount that has been refunded to the customer
 	Supplier            int64         `json:"supplier" example:"20000001"`
-	SupplierReferenceNo string        `json:"supplierReferenceNo" required:"true"` // SupplierReferenceNo is the unique order identifier from the supplier	// Supplier identifies which supplier processed this order
+	SupplierReferenceNo string        `json:"supplierReferenceNo" required:"true"`
 	Rate
 }
 
