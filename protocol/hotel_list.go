@@ -51,6 +51,7 @@ type RoomRatePkg struct {
 	Rate               Rate               `json:"rate,omitzero" required:"true"` // single room price for multiple nights
 	TotalRate          Rate               `json:"totalRate,omitzero"`            // total price for multiple rooms (and multiple nights)
 	RateComment        string             `json:"rateComment"`
+	IncludesPackaging  bool               `json:"includesPackaging,omitempty"` // whether this is a packaged product (e.g., flight+hotel combo)
 	RatePlan
 }
 
@@ -92,9 +93,9 @@ type RatePlan struct {
 
 // Board represents the meal plan information with i18n support
 type Board struct {
-	BoardId   BoardId    `json:"boardId"`                     // Meal plan code (standard enum)
-	BoardName types.I18N `json:"boardName,omitzero"`         // Meal plan name (multilingual)
-	BoardDesc types.I18N `json:"boardDesc,omitzero"`         // Meal plan description (multilingual)
+	BoardId   BoardId    `json:"boardId"`            // Meal plan code (standard enum)
+	BoardName types.I18N `json:"boardName,omitzero"` // Meal plan name (multilingual)
+	BoardDesc types.I18N `json:"boardDesc,omitzero"` // Meal plan description (multilingual)
 }
 type TaxItem struct {
 	TaxType string      `json:"taxType"` // VAT, SERVICE_CHARGE, CITY_TAX, etc.
