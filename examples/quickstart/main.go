@@ -29,7 +29,7 @@ func main() {
 	defer client.Close()
 	testQueries := []string{
 		"",
-		"disableSimulator=true&onlyAvailableSupplierHotels=true",
+		"simulator=DISABLE&onlyAvailableSupplierHotels=true",
 	}
 	for _, tq := range testQueries {
 		run(client, tq)
@@ -314,7 +314,7 @@ func handleRate(ctx context.Context, client *hotelbyte.Client, rate protocol.Roo
 	} else {
 		fmt.Printf("✅ Free cancellation confirmed: no service fee\n")
 	}
-	
+
 	return true
 }
 
