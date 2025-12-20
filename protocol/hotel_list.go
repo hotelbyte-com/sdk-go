@@ -53,6 +53,7 @@ type RoomRatePkg struct {
 	RateComment        string             `json:"rateComment"`
 	IncludesPackaging  bool               `json:"includesPackaging,omitempty"` // whether this is a packaged product (e.g., flight+hotel combo)
 	RatePlan
+	CheckInOut
 }
 
 type ComputedCancelPolicy struct {
