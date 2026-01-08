@@ -46,8 +46,8 @@ func run(client *hotelbyte.Client, tq string) {
 			DestinationName: "Dubai",
 		},
 		CheckInOut: protocol.CheckInOut{
-			CheckIn:  20250315, // YYYYMMDD format
-			CheckOut: 20250317, // YYYYMMDD format
+			CheckIn:  types.NewDateIntFromTime(time.Now().AddDate(0, 0, 10)),
+			CheckOut: types.NewDateIntFromTime(time.Now().AddDate(0, 0, 13)),
 		},
 		Occupancies: protocol.Occupancies{
 			NationalityCode: "US",
