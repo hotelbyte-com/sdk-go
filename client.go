@@ -186,3 +186,46 @@ func (s *Client) Do(ctx context.Context, req *Request) (*Response, error) {
 
 type Request = types.HttpRequest
 type Response = types.HttpResponse
+
+const (
+	// ErrCodeTokenExpired is the error code for token expired (401)
+	ErrCodeTokenExpired = 100000401
+)
+
+// doWithAuthRetry executes a function with automatic retry on token expiration (401 error)
+// If the request fails with ErrCodeTokenExpired, it will re-authenticate and retry once
+func doWithAuthRetry[T any](ctx context.Context, client *Client, fn func() (*T, error)) (*T, error) {
+	// Ensure user is authenticated before first attempt
+	if err := client.Authenticate(ctx); err != nil {
+		return nil, fmt.Errorf("authentication failed: %w", err)
+	}
+
+	// First attempt
+	result, err := fn()
+	if err == nil {
+		return result, nil
+	}
+
+	// Check if error is due to token expired (401)
+	if bizErr, ok := types.UnwrapForBizErr(err); ok && bizErr.Code == ErrCodeTokenExpired {
+		fmt.Printf("⚠️  Token expired (ErrorCode=%d), re-authenticating...\n", ErrCodeTokenExpired)
+
+		// Re-authenticate
+		if refreshErr := client.RefreshToken(ctx); refreshErr != nil {
+			return nil, fmt.Errorf("failed to refresh token: %w", refreshErr)
+		}
+
+		fmt.Printf("✅ Token refreshed, retrying request...\n")
+
+		// Retry the request with new token
+		result, retryErr := fn()
+		if retryErr != nil {
+			return nil, fmt.Errorf("request failed after token refresh: %w", retryErr)
+		}
+
+		return result, nil
+	}
+
+	// Return original error if not a token expiration issue
+	return nil, err
+}

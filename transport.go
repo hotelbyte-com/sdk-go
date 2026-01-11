@@ -100,6 +100,7 @@ var (
 		"Trace-Id",
 		"Session-Id",
 		"Server-Cost-Milliseconds",
+		"X-Cache-Key",
 	}
 )
 
