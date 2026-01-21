@@ -105,10 +105,8 @@ func (c *Config) Validate() error {
 		return fmt.Errorf("empty base url")
 	}
 
-	if c.Credentials.AppKey == "" || c.Credentials.AppSecret == "" {
-		return fmt.Errorf("empty credentials")
-	}
-
+	// Allow empty credentials for external token injection (e.g., portal users)
+	// Credentials are optional if token will be set via SetToken()
 	return nil
 }
 
