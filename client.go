@@ -21,6 +21,13 @@ func (s *Client) Key() string {
 	return s.config.Credentials.AppKey
 }
 
+// SetToken manually sets the authentication token (for testing purposes)
+// This allows setting a token obtained from /api/auth/login for portal users
+func (s *Client) SetToken(token string, ttlSeconds int) {
+	s.token = token
+	s.tokenExpiry = time.Now().Add(time.Duration(ttlSeconds) * time.Second)
+}
+
 // Config represents client configuration
 type Config struct {
 	BaseURL     string
