@@ -101,6 +101,7 @@ var (
 		"Session-Id",
 		"Server-Cost-Milliseconds",
 		"X-Cache-Key",
+		"X-Cache-Status",
 	}
 )
 
