@@ -10,162 +10,144 @@ import (
 )
 
 func (s *Client) HotelList(ctx context.Context, req *protocol.HotelListReq) (*protocol.HotelListResp, error) {
-	// Ensure user is authenticated
-	if err := s.Authenticate(ctx); err != nil {
-		return nil, fmt.Errorf("authentication failed: %w", err)
-	}
+	return doWithAuthRetry(ctx, s, func() (*protocol.HotelListResp, error) {
+		// Build request based on real backend structure
+		httpReq := &types.HttpRequest{
+			Method: http.MethodPost,
+			Path:   "/api/search/hotelList",
+			Headers: map[string]string{
+				"Authorization": s.GetAuthorizationHeader(),
+				"Test":          req.Test,     // Pass test flags if any
+				"Currency":      req.Currency, // Pass currency if any
+			},
+			Body: req, // Use the entire request structure
+		}
 
-	// Build request based on real backend structure
-	httpReq := &types.HttpRequest{
-		Method: http.MethodPost,
-		Path:   "/api/search/hotelList",
-		Headers: map[string]string{
-			"Authorization": s.GetAuthorizationHeader(),
-			"Test":          req.Test,     // Pass test flags if any
-			"Currency":      req.Currency, // Pass currency if any
-		},
-		Body: req, // Use the entire request structure
-	}
+		// Send request
+		resp, err := s.transport.Do(ctx, httpReq)
+		if err != nil {
+			return nil, fmt.Errorf("hotel search request failed: %w", err)
+		}
 
-	// Send request
-	resp, err := s.transport.Do(ctx, httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("hotel search request failed: %w", err)
-	}
-
-	return types.NewResponseData[protocol.HotelListResp](resp)
+		return types.NewResponseData[protocol.HotelListResp](resp)
+	})
 }
 
 func (s *Client) HotelRates(ctx context.Context, req *protocol.HotelRatesReq) (*protocol.HotelRatesResp, error) {
-	// Ensure user is authenticated
-	if err := s.Authenticate(ctx); err != nil {
-		return nil, fmt.Errorf("authentication failed: %w", err)
-	}
+	return doWithAuthRetry(ctx, s, func() (*protocol.HotelRatesResp, error) {
+		// Build request
+		httpReq := &types.HttpRequest{
+			Method: http.MethodPost,
+			Path:   "/api/search/hotelRates",
+			Headers: map[string]string{
+				"Authorization": s.GetAuthorizationHeader(),
+				"Session-Id":    req.SessionId,
+				"Test":          req.Test,     // Pass test flags if any
+				"Currency":      req.Currency, // Pass currency if any
+			},
+			Body: req, // Use the entire request structure
+		}
 
-	// Build request
-	httpReq := &types.HttpRequest{
-		Method: http.MethodPost,
-		Path:   "/api/search/hotelRates",
-		Headers: map[string]string{
-			"Authorization": s.GetAuthorizationHeader(),
-			"Session-Id":    req.SessionId,
-			"Test":          req.Test,     // Pass test flags if any
-			"Currency":      req.Currency, // Pass currency if any
-		},
-		Body: req, // Use the entire request structure
-	}
+		// Send request
+		resp, err := s.transport.Do(ctx, httpReq)
+		if err != nil {
+			return nil, fmt.Errorf("get hotel rates request failed: %w", err)
+		}
 
-	// Send request
-	resp, err := s.transport.Do(ctx, httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("get hotel rates request failed: %w", err)
-	}
-
-	return types.NewResponseData[protocol.HotelRatesResp](resp)
+		return types.NewResponseData[protocol.HotelRatesResp](resp)
+	})
 }
 
 func (s *Client) CheckAvail(ctx context.Context, req *protocol.CheckAvailReq) (*protocol.CheckAvailResp, error) {
-	// Ensure user is authenticated
-	if err := s.Authenticate(ctx); err != nil {
-		return nil, fmt.Errorf("authentication failed: %w", err)
-	}
+	return doWithAuthRetry(ctx, s, func() (*protocol.CheckAvailResp, error) {
+		// Build request
+		httpReq := &types.HttpRequest{
+			Method: http.MethodPost,
+			Path:   "/api/search/checkAvail",
+			Headers: map[string]string{
+				"Authorization": s.GetAuthorizationHeader(),
+				"Session-Id":    req.SessionId,
+				"Test":          req.Test, // Pass test flags if any
+			},
+			Body: req, // Use the entire request structure
+		}
 
-	// Build request
-	httpReq := &types.HttpRequest{
-		Method: http.MethodPost,
-		Path:   "/api/search/checkAvail",
-		Headers: map[string]string{
-			"Authorization": s.GetAuthorizationHeader(),
-			"Session-Id":    req.SessionId,
-			"Test":          req.Test, // Pass test flags if any
-		},
-		Body: req, // Use the entire request structure
-	}
+		// Send request
+		resp, err := s.transport.Do(ctx, httpReq)
+		if err != nil {
+			return nil, fmt.Errorf("get hotel rates request failed: %w", err)
+		}
 
-	// Send request
-	resp, err := s.transport.Do(ctx, httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("get hotel rates request failed: %w", err)
-	}
-
-	return types.NewResponseData[protocol.CheckAvailResp](resp)
+		return types.NewResponseData[protocol.CheckAvailResp](resp)
+	})
 }
 
 func (s *Client) Book(ctx context.Context, req *protocol.BookReq) (*protocol.BookResp, error) {
-	// Ensure user is authenticated
-	if err := s.Authenticate(ctx); err != nil {
-		return nil, fmt.Errorf("authentication failed: %w", err)
-	}
+	return doWithAuthRetry(ctx, s, func() (*protocol.BookResp, error) {
+		// Build request
+		httpReq := &types.HttpRequest{
+			Method: http.MethodPost,
+			Path:   "/api/trade/book",
+			Headers: map[string]string{
+				"Authorization": s.GetAuthorizationHeader(),
+				"Session-Id":    req.SessionId,
+				"Test":          req.Test, // Pass test flags if any
+			},
+			Body: req, // Use the entire request structure
+		}
 
-	// Build request
-	httpReq := &types.HttpRequest{
-		Method: http.MethodPost,
-		Path:   "/api/trade/book",
-		Headers: map[string]string{
-			"Authorization": s.GetAuthorizationHeader(),
-			"Session-Id":    req.SessionId,
-			"Test":          req.Test, // Pass test flags if any
-		},
-		Body: req, // Use the entire request structure
-	}
+		// Send request
+		resp, err := s.transport.Do(ctx, httpReq)
+		if err != nil {
+			return nil, fmt.Errorf("get hotel rates request failed: %w", err)
+		}
 
-	// Send request
-	resp, err := s.transport.Do(ctx, httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("get hotel rates request failed: %w", err)
-	}
-
-	return types.NewResponseData[protocol.BookResp](resp)
+		return types.NewResponseData[protocol.BookResp](resp)
+	})
 }
 
 func (s *Client) QueryOrders(ctx context.Context, req *protocol.QueryOrdersReq) (*protocol.QueryOrdersResp, error) {
-	// Ensure user is authenticated
-	if err := s.Authenticate(ctx); err != nil {
-		return nil, fmt.Errorf("authentication failed: %w", err)
-	}
+	return doWithAuthRetry(ctx, s, func() (*protocol.QueryOrdersResp, error) {
+		// Build request
+		httpReq := &types.HttpRequest{
+			Method: http.MethodPost,
+			Path:   "/api/trade/queryOrders",
+			Headers: map[string]string{
+				"Authorization": s.GetAuthorizationHeader(),
+				"Test":          req.Test, // Pass test flags if any
+			},
+			Body: req, // Use the entire request structure
+		}
 
-	// Build request
-	httpReq := &types.HttpRequest{
-		Method: http.MethodPost,
-		Path:   "/api/trade/queryOrders",
-		Headers: map[string]string{
-			"Authorization": s.GetAuthorizationHeader(),
-			"Test":          req.Test, // Pass test flags if any
-		},
-		Body: req, // Use the entire request structure
-	}
+		// Send request
+		resp, err := s.transport.Do(ctx, httpReq)
+		if err != nil {
+			return nil, fmt.Errorf("get hotel rates request failed: %w", err)
+		}
 
-	// Send request
-	resp, err := s.transport.Do(ctx, httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("get hotel rates request failed: %w", err)
-	}
-
-	return types.NewResponseData[protocol.QueryOrdersResp](resp)
+		return types.NewResponseData[protocol.QueryOrdersResp](resp)
+	})
 }
 
 func (s *Client) Cancel(ctx context.Context, req *protocol.CancelReq) (*protocol.CancelResp, error) {
-	// Ensure user is authenticated
-	if err := s.Authenticate(ctx); err != nil {
-		return nil, fmt.Errorf("authentication failed: %w", err)
-	}
+	return doWithAuthRetry(ctx, s, func() (*protocol.CancelResp, error) {
+		// Build request
+		httpReq := &types.HttpRequest{
+			Method: http.MethodPost,
+			Path:   "/api/trade/cancel",
+			Headers: map[string]string{
+				"Authorization": s.GetAuthorizationHeader(),
+				"Test":          req.Test, // Pass test flags if any
+			},
+			Body: req, // Use the entire request structure
+		}
 
-	// Build request
-	httpReq := &types.HttpRequest{
-		Method: http.MethodPost,
-		Path:   "/api/trade/cancel",
-		Headers: map[string]string{
-			"Authorization": s.GetAuthorizationHeader(),
-			"Test":          req.Test, // Pass test flags if any
-		},
-		Body: req, // Use the entire request structure
-	}
+		// Send request
+		resp, err := s.transport.Do(ctx, httpReq)
+		if err != nil {
+			return nil, fmt.Errorf("get hotel rates request failed: %w", err)
+		}
 
-	// Send request
-	resp, err := s.transport.Do(ctx, httpReq)
-	if err != nil {
-		return nil, fmt.Errorf("get hotel rates request failed: %w", err)
-	}
-
-	return types.NewResponseData[protocol.CancelResp](resp)
+		return types.NewResponseData[protocol.CancelResp](resp)
+	})
 }
