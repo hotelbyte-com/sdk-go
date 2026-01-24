@@ -54,11 +54,16 @@ func (s *Client) GetToken() string {
 // SetToken sets an external authentication token (for example, JWT from portal login)
 // This allows using a token obtained from /api/auth/login without re-authentication
 // The token will be used directly in Authorization headers for subsequent requests
-func (s *Client) SetToken(token string) {
+// If ttlSeconds is 0 or negative, it will set a far future expiry (365 days) for external tokens
+func (s *Client) SetToken(token string, ttlSeconds ...int) {
 	s.token = token
-	// Set a far future expiry for external tokens (typically JWT with own expiry)
-	// The API will reject expired tokens anyway
-	s.tokenExpiry = time.Now().Add(365 * 24 * time.Hour)
+	if len(ttlSeconds) > 0 && ttlSeconds[0] > 0 {
+		s.tokenExpiry = time.Now().Add(time.Duration(ttlSeconds[0]) * time.Second)
+	} else {
+		// Set a far future expiry for external tokens (typically JWT with own expiry)
+		// The API will reject expired tokens anyway
+		s.tokenExpiry = time.Now().Add(365 * 24 * time.Hour)
+	}
 }
 
 // RefreshToken refreshes the authentication token
