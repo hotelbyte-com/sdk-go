@@ -7,10 +7,11 @@ import (
 )
 
 type BookReq struct {
-	CustomerReferenceNo string  `json:"customerReferenceNo,omitempty" example:"uuid"` // customerReferenceNo contains the reference number value
-	RatePkgId           string  `json:"ratePkgId,omitempty" required:"true"`          // RatePkgId is obtained from HotelStaticDetail API
-	Holder              Holder  `json:"holder,omitzero" required:"true"`              // Holder contains the booking contact information
-	Guests              []Guest `json:"guests,omitzero" required:"true"`              // Guests contains the list of guests for this room
+	CustomerReferenceNo string  `json:"customerReferenceNo,omitempty" example:"uuid"`                // customerReferenceNo contains the reference number value
+	RatePkgId           string  `json:"ratePkgId,omitempty" required:"true"`                         // RatePkgId is obtained from HotelStaticDetail API
+	Holder              Holder  `json:"holder,omitzero" required:"true"`                             // Holder contains the booking contact information
+	Guests              []Guest `json:"guests,omitzero" required:"true"`                             // Guests contains the list of guests for this room
+	CallbackURL         string  `json:"callbackUrl,omitempty" example:"https://example.com/webhook"` // callbackUrl is the optional webhook URL for order status notifications
 	SessionOption
 	TestOption
 }
