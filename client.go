@@ -149,6 +149,14 @@ func WithTimeout(timeout time.Duration) ClientOption {
 	}
 }
 
+// WithHTTPConfig sets the HTTP configuration
+func WithHTTPConfig(httpConfig HTTPConfig) ClientOption {
+	return func(c *Config) error {
+		c.HTTPConfig = httpConfig
+		return nil
+	}
+}
+
 // WithRetryConfig sets the retry configuration
 func WithRetryConfig(maxRetries int, initialDelay, maxDelay time.Duration) ClientOption {
 	return func(c *Config) error {
