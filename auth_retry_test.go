@@ -3,11 +3,23 @@ package hotelbyte
 import (
 	"context"
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/hotelbyte-com/sdk-go/protocol"
 	"github.com/hotelbyte-com/sdk-go/protocol/types"
 )
+
+// 集成测试需同时满足：非 -short，且 HOTELBYTE_SDK_INTEGRATION=1（避免默认 go test 依赖外网与固定账号）。
+func skipUnlessIntegration(t *testing.T) {
+	t.Helper()
+	if testing.Short() {
+		t.Skip("Skipping integration test in short mode")
+	}
+	if os.Getenv("HOTELBYTE_SDK_INTEGRATION") != "1" {
+		t.Skip("Skipping integration test; set HOTELBYTE_SDK_INTEGRATION=1 to run against api-test")
+	}
+}
 
 // TestAuthRetryOnTokenExpired tests that the SDK automatically retries on token expiration
 // This test verifies that when a token expires (ErrorCode 100000401), the SDK will:
@@ -15,10 +27,7 @@ import (
 // 2. Re-authenticate to get a new token
 // 3. Retry the original request with the new token
 func TestAuthRetryOnTokenExpired(t *testing.T) {
-	// Skip in short mode
-	if testing.Short() {
-		t.Skip("Skipping integration test in short mode")
-	}
+	skipUnlessIntegration(t)
 
 	ctx := context.Background()
 
@@ -148,9 +157,7 @@ func TestAuthRetryOnTokenExpired(t *testing.T) {
 
 // TestAuthRetryAllEndpoints tests that all endpoints support auto-retry
 func TestAuthRetryAllEndpoints(t *testing.T) {
-	if testing.Short() {
-		t.Skip("Skipping integration test in short mode")
-	}
+	skipUnlessIntegration(t)
 
 	ctx := context.Background()
 
@@ -185,10 +192,9 @@ func TestAuthRetryAllEndpoints(t *testing.T) {
 	}
 	searchResp, err := client.HotelList(ctx, searchReq)
 	if err != nil {
-		t.Errorf("HotelList failed: %v", err)
-	} else {
-		t.Logf("✅ HotelList successful: %d hotels", len(searchResp.List))
+		t.Fatalf("HotelList failed: %v", err)
 	}
+	t.Logf("✅ HotelList successful: %d hotels", len(searchResp.List))
 
 	// Test HotelRates (if we have hotels from previous call)
 	if len(searchResp.List) > 0 {
@@ -251,8 +257,4 @@ func ExampleClient_autoRetry() {
 	}
 
 	fmt.Printf("Found %d hotels\n", len(resp.List))
-	// Output:
-	// ⚠️  Token expired (ErrorCode=100000401), re-authenticating...
-	// ✅ Token refreshed, retrying request...
-	// Found X hotels
 }
