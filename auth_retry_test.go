@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/hotelbyte-com/sdk-go/protocol"
+	"github.com/hotelbyte-com/sdk-go/protocol/types"
 )
 
 // TestAuthRetryOnTokenExpired tests that the SDK automatically retries on token expiration
@@ -45,8 +46,8 @@ func TestAuthRetryOnTokenExpired(t *testing.T) {
 			DestinationName: "Dubai",
 		},
 		CheckInOut: protocol.CheckInOut{
-			CheckIn:  sdktypes.NewDateInt(2025, 2, 1),
-			CheckOut: sdktypes.NewDateInt(2025, 2, 3),
+			CheckIn:  types.DateInt(20250201),
+			CheckOut: types.DateInt(20250203),
 		},
 		Occupancies: protocol.Occupancies{
 			NationalityCode: "US",
@@ -57,7 +58,7 @@ func TestAuthRetryOnTokenExpired(t *testing.T) {
 		CurrencyOption: protocol.CurrencyOption{
 			Currency: "USD",
 		},
-		PageReq: sdktypes.PageReq{
+		PageReq: types.PageReq{
 			PageSize: 10,
 			PageNum:  1,
 		},
@@ -84,8 +85,8 @@ func TestAuthRetryOnTokenExpired(t *testing.T) {
 			DestinationName: "Abu Dhabi",
 		},
 		CheckInOut: protocol.CheckInOut{
-			CheckIn:  protocol.DateInt{Year: 2025, Month: 2, Day: 1},
-			CheckOut: protocol.DateInt{Year: 2025, Month: 2, Day: 3},
+			CheckIn:  types.DateInt(20250201),
+			CheckOut: types.DateInt(20250203),
 		},
 		Occupancies: protocol.Occupancies{
 			NationalityCode: "US",
@@ -96,7 +97,7 @@ func TestAuthRetryOnTokenExpired(t *testing.T) {
 		CurrencyOption: protocol.CurrencyOption{
 			Currency: "USD",
 		},
-		PageReq: protocol.PageReq{
+		PageReq: types.PageReq{
 			PageSize: 10,
 			PageNum:  1,
 		},
@@ -117,8 +118,8 @@ func TestAuthRetryOnTokenExpired(t *testing.T) {
 				DestinationName: "Dubai",
 			},
 			CheckInOut: protocol.CheckInOut{
-				CheckIn:  protocol.DateInt{Year: 2025, Month: 2, Day: 1},
-				CheckOut: protocol.DateInt{Year: 2025, Month: 2, Day: 3},
+				CheckIn:  types.DateInt(20250201),
+				CheckOut: types.DateInt(20250203),
 			},
 			Occupancies: protocol.Occupancies{
 				NationalityCode: "US",
@@ -129,7 +130,7 @@ func TestAuthRetryOnTokenExpired(t *testing.T) {
 			CurrencyOption: protocol.CurrencyOption{
 				Currency: "USD",
 			},
-			PageReq: protocol.PageReq{
+			PageReq: types.PageReq{
 				PageSize: 5,
 				PageNum:  1,
 			},
@@ -172,15 +173,15 @@ func TestAuthRetryAllEndpoints(t *testing.T) {
 	searchReq := &protocol.HotelListReq{
 		HotelDestination: protocol.HotelDestination{DestinationName: "Dubai"},
 		CheckInOut: protocol.CheckInOut{
-			CheckIn:  protocol.DateInt{Year: 2025, Month: 2, Day: 1},
-			CheckOut: protocol.DateInt{Year: 2025, Month: 2, Day: 3},
+			CheckIn:  types.DateInt(20250201),
+			CheckOut: types.DateInt(20250203),
 		},
 		Occupancies: protocol.Occupancies{
 			NationalityCode: "US",
 			RoomOccupancies: []protocol.GuestPerRoom{{AdultCount: 2}},
 		},
 		CurrencyOption: protocol.CurrencyOption{Currency: "USD"},
-		PageReq:        protocol.PageReq{PageSize: 5, PageNum: 1},
+		PageReq:        types.PageReq{PageSize: 5, PageNum: 1},
 	}
 	searchResp, err := client.HotelList(ctx, searchReq)
 	if err != nil {
@@ -228,15 +229,15 @@ func ExampleClient_autoRetry() {
 	searchReq := &protocol.HotelListReq{
 		HotelDestination: protocol.HotelDestination{DestinationName: "Dubai"},
 		CheckInOut: protocol.CheckInOut{
-			CheckIn:  protocol.DateInt{Year: 2025, Month: 2, Day: 1},
-			CheckOut: protocol.DateInt{Year: 2025, Month: 2, Day: 3},
+			CheckIn:  types.DateInt(20250201),
+			CheckOut: types.DateInt(20250203),
 		},
 		Occupancies: protocol.Occupancies{
 			NationalityCode: "US",
 			RoomOccupancies: []protocol.GuestPerRoom{{AdultCount: 2}},
 		},
 		CurrencyOption: protocol.CurrencyOption{Currency: "USD"},
-		PageReq:        protocol.PageReq{PageSize: 10, PageNum: 1},
+		PageReq:        types.PageReq{PageSize: 10, PageNum: 1},
 	}
 
 	// If the token is expired, the SDK will automatically:
