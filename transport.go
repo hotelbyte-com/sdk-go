@@ -42,6 +42,9 @@ func NewTransport(config *Config) (*Transport, error) {
 			// 重试条件：网络错误 || 429 Too Many Requests || 5xx Server Error
 			return err != nil || r.StatusCode() == 429 || r.StatusCode() >= 500
 		})
+	for k, v := range config.HTTPConfig.DefaultHeaders {
+		client.SetHeader(k, v)
+	}
 
 	return &Transport{
 		client: client,
