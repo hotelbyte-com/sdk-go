@@ -41,6 +41,8 @@ type HTTPConfig struct {
 	MaxIdleConns    int
 	MaxConnsPerHost int
 	UserAgent       string
+	// DefaultHeaders are applied to every outgoing request (merged with per-request Headers).
+	DefaultHeaders map[string]string
 }
 
 // RetryConfig represents retry configuration
@@ -153,6 +155,21 @@ func WithTimeout(timeout time.Duration) ClientOption {
 func WithHTTPConfig(httpConfig HTTPConfig) ClientOption {
 	return func(c *Config) error {
 		c.HTTPConfig = httpConfig
+		return nil
+	}
+}
+
+// WithHeader sets a default HTTP header on the underlying client for all requests.
+// Multiple calls merge; later values for the same key win.
+func WithHeader(key, value string) ClientOption {
+	return func(c *Config) error {
+		if key == "" {
+			return fmt.Errorf("empty header name")
+		}
+		if c.HTTPConfig.DefaultHeaders == nil {
+			c.HTTPConfig.DefaultHeaders = make(map[string]string)
+		}
+		c.HTTPConfig.DefaultHeaders[key] = value
 		return nil
 	}
 }
