@@ -2,10 +2,12 @@ package types
 
 import (
 	"fmt"
-	"github.com/bytedance/sonic"
 	"net/http"
 	"net/url"
 	"reflect"
+	"strings"
+
+	"github.com/bytedance/sonic"
 )
 
 type Response[T any] struct {
@@ -43,13 +45,13 @@ func setHeaderField[T any](data *T, header http.Header) {
 		field := typ.Field(i)
 		fieldName := field.Name
 
-		// 检查字段名是否为 "header"
-		if fieldName == "header" {
+		// 匹配名为 Header 的字段（反射为 "Header"，与 json:"header" 无关）
+		if strings.EqualFold(fieldName, "header") {
 			// 检查字段类型是否是 http.Header (map[string][]string)
 			if field.Type.Kind() == reflect.Map &&
-			   field.Type.Key().Kind() == reflect.String &&
-			   field.Type.Elem().Kind() == reflect.Slice &&
-			   field.Type.Elem().Elem().Kind() == reflect.String {
+				field.Type.Key().Kind() == reflect.String &&
+				field.Type.Elem().Kind() == reflect.Slice &&
+				field.Type.Elem().Elem().Kind() == reflect.String {
 
 				headerValue := val.Field(i)
 				if headerValue.IsValid() && headerValue.CanSet() {

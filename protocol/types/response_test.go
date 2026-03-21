@@ -7,8 +7,8 @@ import (
 
 // 定义一个包含header字段的结构体来测试
 type TestResponseWithHeader struct {
-	ID     int    `json:"id"`
-	Name   string `json:"name"`
+	ID     int         `json:"id"`
+	Name   string      `json:"name"`
 	Header http.Header `json:"header"`
 }
 
@@ -21,13 +21,13 @@ type TestResponseWithoutHeader struct {
 func TestNewResponseDataWithHeaderField(t *testing.T) {
 	// 模拟HTTP响应
 	responseBody := `{"code":0,"data":{"id":123,"name":"test","header":null}}`
+	respHeaders := make(http.Header)
+	respHeaders.Set("X-Custom-Header", "value1")
+	respHeaders.Set("X-Request-ID", "req-123")
 	response := &HttpResponse{
 		StatusCode: 200,
-		Headers:    http.Header{
-			"X-Custom-Header": []string{"value1"},
-			"X-Request-ID":    []string{"req-123"},
-		},
-		Body: []byte(responseBody),
+		Headers:    respHeaders,
+		Body:       []byte(responseBody),
 	}
 
 	result, err := NewResponseData[TestResponseWithHeader](response)
@@ -60,7 +60,7 @@ func TestNewResponseDataWithoutHeaderField(t *testing.T) {
 	responseBody := `{"code":0,"data":{"id":456,"name":"test-no-header"}}`
 	response := &HttpResponse{
 		StatusCode: 200,
-		Headers:    http.Header{
+		Headers: http.Header{
 			"X-Custom-Header": []string{"value2"},
 		},
 		Body: []byte(responseBody),
@@ -118,11 +118,10 @@ func TestNewResponseDataWithEmptyBody(t *testing.T) {
 }
 
 func TestSetHeaderField(t *testing.T) {
-	// 测试设置header字段的辅助函数
-	header := http.Header{
-		"Content-Type": []string{"application/json"},
-		"Authorization": []string{"Bearer token"},
-	}
+	// 测试设置header字段的辅助函数（用 Set 写入规范化键，与 net/http.Header.Get 行为一致）
+	header := make(http.Header)
+	header.Set("Content-Type", "application/json")
+	header.Set("Authorization", "Bearer token")
 
 	data := &TestResponseWithHeader{}
 	setHeaderField(data, header)
