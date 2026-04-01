@@ -2,6 +2,7 @@ package hotelbyte
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"net/http"
 	"strings"
@@ -22,6 +23,18 @@ type Transport struct {
 
 // NewTransport creates a new transport layer
 func NewTransport(config *Config) (*Transport, error) {
+	transport := &http.Transport{
+		Proxy:               http.ProxyFromEnvironment,
+		MaxIdleConns:        config.HTTPConfig.MaxIdleConns,
+		MaxIdleConnsPerHost: config.HTTPConfig.MaxConnsPerHost,
+		IdleConnTimeout:     90 * time.Second,
+		ForceAttemptHTTP2:   !config.HTTPConfig.DisableHTTP2,
+	}
+	if config.HTTPConfig.DisableHTTP2 {
+		// Disable ALPN-upgraded HTTP/2 for diagnostics and load-test isolation.
+		transport.TLSNextProto = map[string]func(string, *tls.Conn) http.RoundTripper{}
+	}
+
 	client := resty.New().
 		SetBaseURL(config.BaseURL).
 		SetTimeout(config.HTTPConfig.Timeout).
@@ -29,12 +42,7 @@ func NewTransport(config *Config) (*Transport, error) {
 		SetHeader("Content-Type", "application/json").
 		SetJSONMarshaler(sonic.Marshal).
 		SetJSONUnmarshaler(sonic.Unmarshal).
-		SetTransport(&http.Transport{
-			Proxy:               http.ProxyFromEnvironment,
-			MaxIdleConns:        config.HTTPConfig.MaxIdleConns,
-			MaxIdleConnsPerHost: config.HTTPConfig.MaxConnsPerHost,
-			IdleConnTimeout:     90 * time.Second,
-		}).
+		SetTransport(transport).
 		SetRetryCount(config.RetryConfig.MaxRetries).
 		SetRetryWaitTime(config.RetryConfig.InitialDelay).
 		SetRetryMaxWaitTime(config.RetryConfig.MaxDelay).

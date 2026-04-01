@@ -5,8 +5,10 @@ import (
 	"context"
 	"fmt"
 	"time"
+	"sync"
 
 	"github.com/hotelbyte-com/sdk-go/protocol/types"
+	"golang.org/x/sync/singleflight"
 )
 
 // Client is the main HotelByte API client
@@ -15,6 +17,8 @@ type Client struct {
 	transport   *Transport
 	token       string
 	tokenExpiry time.Time
+	mu          sync.RWMutex
+	sf          singleflight.Group
 }
 
 func (s *Client) Key() string {
@@ -41,6 +45,7 @@ type HTTPConfig struct {
 	MaxIdleConns    int
 	MaxConnsPerHost int
 	UserAgent       string
+	DisableHTTP2    bool
 	// DefaultHeaders are applied to every outgoing request (merged with per-request Headers).
 	DefaultHeaders map[string]string
 }

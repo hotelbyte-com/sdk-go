@@ -1,6 +1,6 @@
 module github.com/hotelbyte-com/sdk-go
 
-go 1.21.0
+go 1.25.0
 
 require (
 	github.com/bytedance/sonic v1.14.1
@@ -18,5 +18,6 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	golang.org/x/arch v0.0.0-20210923205945-b76863e36670 // indirect
 	golang.org/x/net v0.24.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.22.0 // indirect
 )
