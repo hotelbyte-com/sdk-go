@@ -4,8 +4,8 @@ package hotelbyte
 import (
 	"context"
 	"fmt"
-	"time"
 	"sync"
+	"time"
 
 	"github.com/hotelbyte-com/sdk-go/protocol/types"
 	"golang.org/x/sync/singleflight"
@@ -31,6 +31,7 @@ type Config struct {
 	Credentials Credentials
 	HTTPConfig  HTTPConfig
 	RetryConfig RetryConfig
+	AuthConfig  AuthConfig
 }
 
 // Credentials represents authentication credentials
@@ -46,6 +47,8 @@ type HTTPConfig struct {
 	MaxConnsPerHost int
 	UserAgent       string
 	DisableHTTP2    bool
+	// LogResponseHeaders controls whether selected response headers are logged for every request.
+	LogResponseHeaders bool
 	// DefaultHeaders are applied to every outgoing request (merged with per-request Headers).
 	DefaultHeaders map[string]string
 }
@@ -56,6 +59,12 @@ type RetryConfig struct {
 	InitialDelay  time.Duration
 	MaxDelay      time.Duration
 	BackoffFactor float64
+}
+
+// AuthConfig represents auth behavior configuration
+type AuthConfig struct {
+	// DisableAutoRetry disables Authenticate() pre-check and token refresh+retry on 401.
+	DisableAutoRetry bool
 }
 
 // NewClient creates a new HotelByte client
@@ -92,10 +101,11 @@ func DefaultConfig() *Config {
 	return &Config{
 		BaseURL: "https://api.hotelbyte.com",
 		HTTPConfig: HTTPConfig{
-			Timeout:         120 * time.Second,
-			MaxIdleConns:    100,
-			MaxConnsPerHost: 10,
-			UserAgent:       "HotelByte-Go-SDK/0.0.1",
+			Timeout:            120 * time.Second,
+			MaxIdleConns:       100,
+			MaxConnsPerHost:    10,
+			UserAgent:          "HotelByte-Go-SDK/0.0.1",
+			LogResponseHeaders: true,
 		},
 		RetryConfig: RetryConfig{
 			MaxRetries:    3,
@@ -103,6 +113,7 @@ func DefaultConfig() *Config {
 			MaxDelay:      30 * time.Second,
 			BackoffFactor: 2.0,
 		},
+		AuthConfig: AuthConfig{},
 	}
 }
 
@@ -159,6 +170,19 @@ func WithTimeout(timeout time.Duration) ClientOption {
 // WithHTTPConfig sets the HTTP configuration
 func WithHTTPConfig(httpConfig HTTPConfig) ClientOption {
 	return func(c *Config) error {
+		// Preserve headers previously set by WithHeader when callers pass options
+		// as WithHeader(...), WithHTTPConfig(...). Explicit headers on httpConfig
+		// still take precedence.
+		if len(c.HTTPConfig.DefaultHeaders) > 0 {
+			if httpConfig.DefaultHeaders == nil {
+				httpConfig.DefaultHeaders = make(map[string]string, len(c.HTTPConfig.DefaultHeaders))
+			}
+			for k, v := range c.HTTPConfig.DefaultHeaders {
+				if _, exists := httpConfig.DefaultHeaders[k]; !exists {
+					httpConfig.DefaultHeaders[k] = v
+				}
+			}
+		}
 		c.HTTPConfig = httpConfig
 		return nil
 	}
@@ -195,6 +219,14 @@ func WithRetryConfig(maxRetries int, initialDelay, maxDelay time.Duration) Clien
 	}
 }
 
+// WithDisableAutoAuthRetry controls whether SDK auto-auth and 401 token refresh+retry is enabled.
+func WithDisableAutoAuthRetry(disable bool) ClientOption {
+	return func(c *Config) error {
+		c.AuthConfig.DisableAutoRetry = disable
+		return nil
+	}
+}
+
 // GetConfig returns the client configuration
 func (s *Client) GetConfig() *Config {
 	return s.config
@@ -223,10 +255,16 @@ const (
 // doWithAuthRetry executes a function with automatic retry on token expiration (401 error)
 // If the request fails with ErrCodeTokenExpired, it will re-authenticate and retry once
 func doWithAuthRetry[T any](ctx context.Context, client *Client, fn func() (*T, error)) (*T, error) {
+	if client.config.AuthConfig.DisableAutoRetry {
+		return fn()
+	}
+
 	// Ensure user is authenticated before first attempt
 	if err := client.Authenticate(ctx); err != nil {
 		return nil, fmt.Errorf("authentication failed: %w", err)
 	}
+
+	tokenBefore := client.GetToken()
 
 	// First attempt
 	result, err := fn()
@@ -236,14 +274,20 @@ func doWithAuthRetry[T any](ctx context.Context, client *Client, fn func() (*T, 
 
 	// Check if error is due to token expired (401)
 	if bizErr, ok := types.UnwrapForBizErr(err); ok && bizErr.Code == ErrCodeTokenExpired {
-		fmt.Printf("⚠️  Token expired (ErrorCode=%d), re-authenticating...\n", ErrCodeTokenExpired)
+		// Another request may have already refreshed the token while this request was in flight.
+		// If token has changed, retry directly to avoid refresh storms under concurrency.
+		if currentToken := client.GetToken(); currentToken != "" && currentToken != tokenBefore {
+			result, retryErr := fn()
+			if retryErr != nil {
+				return nil, fmt.Errorf("request failed after token change retry: %w", retryErr)
+			}
+			return result, nil
+		}
 
 		// Re-authenticate
 		if refreshErr := client.RefreshToken(ctx); refreshErr != nil {
 			return nil, fmt.Errorf("failed to refresh token: %w", refreshErr)
 		}
-
-		fmt.Printf("✅ Token refreshed, retrying request...\n")
 
 		// Retry the request with new token
 		result, retryErr := fn()

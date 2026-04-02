@@ -86,18 +86,20 @@ func (t *Transport) Do(ctx context.Context, req *types.HttpRequest) (*types.Http
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
 
-	headers := resp.Header()
-	sb := strings.Builder{}
-	for _, key := range keys {
-		if val := headers.Get(key); val != "" {
-			sb.WriteString(key)
-			sb.WriteString("=")
-			sb.WriteString(val)
-			sb.WriteString(" ")
+	if t.config.HTTPConfig.LogResponseHeaders {
+		headers := resp.Header()
+		sb := strings.Builder{}
+		for _, key := range keys {
+			if val := headers.Get(key); val != "" {
+				sb.WriteString(key)
+				sb.WriteString("=")
+				sb.WriteString(val)
+				sb.WriteString(" ")
+			}
 		}
-	}
-	if sb.Len() > 0 {
-		logrus.WithContext(ctx).Infof("%s Response headers: %s", req.Path, strings.TrimSpace(sb.String()))
+		if sb.Len() > 0 {
+			logrus.WithContext(ctx).Infof("%s Response headers: %s", req.Path, strings.TrimSpace(sb.String()))
+		}
 	}
 	return &types.HttpResponse{
 		StatusCode: resp.StatusCode(),
