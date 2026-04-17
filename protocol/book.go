@@ -63,7 +63,8 @@ type HotelOrder struct {
 
 // OrderBasic contains the fundamental information about a hotel order
 type OrderBasic struct {
-	Status              OrderStatus   `json:"status" required:"true" example:"1"` // OrderStatus indicates the current status of the order
+	Status              OrderStatus   `json:"status" required="true" example:"1"`           // OrderStatus indicates the current status of the order
+	StatusAlert         StatusAlert   `json:"statusAlert,omitempty" example:"none"`       // Current business alert for customer-facing status projection
 	StatusRemark        string        `json:"statusRemark" example:"aborted"`
 	CheckIn             types.DateInt `json:"checkIn" required:"true" example:"2026-01-01"`
 	CheckOut            types.DateInt `json:"checkOut" required:"true" example:"2026-01-03"`
@@ -97,4 +98,15 @@ const (
 	OrderStatus_Cancelled
 	OrderStatus_Failed
 	OrderStatus_CancelFailed
+)
+
+// StatusAlert 订单运营告警类型
+// 用于客户侧状态联合投影，标识订单当前的业务告警状态
+type StatusAlert string
+
+const (
+	StatusAlert_None                StatusAlert = "none"                 // 无告警
+	StatusAlert_BookingAborted      StatusAlert = "booking_aborted"      // 预订失败但供应商侧可能已建单
+	StatusAlert_CancellationAborted StatusAlert = "cancellation_aborted" // 取消结果不确定，订单仍视为有效
+	StatusAlert_CancellationFailed  StatusAlert = "cancellation_failed"  // 取消明确失败
 )
