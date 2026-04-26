@@ -15,7 +15,16 @@ type QueryOrdersReq struct {
 	TestOption
 }
 
-// QueryOrdersResp represents the response containing multiple hotel orders
+// QueryOrdersResp represents the response containing multiple hotel orders.
+//
+// MVP order-detail field paths:
+// - orders[].rooms[0].includesPackaging indicates packaged rates.
+// - orders[].rooms[0].totalRate.grossRate is gross price; display it only when respectGrossRate is true and amount is non-zero.
+// - orders[].rooms[0].rateComment contains rate comments.
+// - orders[].sourceRate.netRate is supplier original net rate when exposed by the API.
+// - orders[].rooms[0].totalRateInBusinessCurrency.netRate is customer net in business currency when exposed by the API.
+// - orders[].rooms[0].policyBufferHours and orders[].rooms[0].cancellationPolicyText are backend cancellation display fields.
+// - channel/distribution should be derived as: bookingSource XML => API; Retail/Admin => Web; bookingMode external => Offline, otherwise Direct.
 type QueryOrdersResp struct {
 	Orders []*HotelOrder `json:"orders"` // Orders contains a list of hotel order information
 	Header CommonHeader  `json:"header"`

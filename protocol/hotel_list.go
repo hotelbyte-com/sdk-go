@@ -47,11 +47,13 @@ type Room struct {
 type RoomRatePkg struct {
 	RatePkgId string `json:"ratePkgId,omitempty" required:"true"` // used as key input for checkAvail & book APIs
 	ComputedCancelPolicy
-	OriginalRoomNaming OriginalRoomNaming `json:"originalRoomNaming,omitzero"`   // origin room naming fields from supplier
-	Rate               Rate               `json:"rate,omitzero" required:"true"` // single room price for multiple nights
-	TotalRate          Rate               `json:"totalRate,omitzero"`            // total price for multiple rooms (and multiple nights)
-	RateComment        string             `json:"rateComment"`
-	IncludesPackaging  bool               `json:"includesPackaging,omitempty"` // whether this is a packaged product (e.g., flight+hotel combo)
+	OriginalRoomNaming     OriginalRoomNaming `json:"originalRoomNaming,omitzero"`   // origin room naming fields from supplier
+	Rate                   Rate               `json:"rate,omitzero" required:"true"` // single room price for multiple nights
+	TotalRate              Rate               `json:"totalRate,omitzero"`            // total price for multiple rooms (and multiple nights)
+	RateComment            string             `json:"rateComment"`
+	PolicyBufferHours      int                `json:"policyBufferHours,omitempty"`      // cancellation deadline buffer applied by tenant policy
+	CancellationPolicyText string             `json:"cancellationPolicyText,omitempty"` // customer-facing cancellation policy summary
+	IncludesPackaging      bool               `json:"includesPackaging,omitempty"`      // whether this is a packaged product (e.g., flight+hotel combo)
 	RatePlan
 	CheckInOut
 }
