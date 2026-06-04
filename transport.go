@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bytedance/sonic"
 	"github.com/sirupsen/logrus"
 
-	"github.com/bytedance/sonic"
 	"github.com/go-resty/resty/v2"
 	"github.com/hotelbyte-com/sdk-go/protocol/types"
 )
@@ -24,7 +24,7 @@ type Transport struct {
 // NewTransport creates a new transport layer
 func NewTransport(config *Config) (*Transport, error) {
 	transport := &http.Transport{
-		Proxy:               http.ProxyFromEnvironment,
+		// Proxy:               http.ProxyFromEnvironment,
 		MaxIdleConns:        config.HTTPConfig.MaxIdleConns,
 		MaxIdleConnsPerHost: config.HTTPConfig.MaxConnsPerHost,
 		IdleConnTimeout:     90 * time.Second,

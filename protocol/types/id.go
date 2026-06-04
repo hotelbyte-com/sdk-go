@@ -2,12 +2,11 @@ package types
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
-	"github.com/bytedance/sonic"
 	"strconv"
 	"strings"
 
+	"github.com/bytedance/sonic"
 	"github.com/spf13/cast"
 )
 
@@ -53,7 +52,7 @@ func (ids *IDs) UnmarshalJSON(data []byte) error {
 	switch b[0] {
 	case '[':
 		var tmp []ID
-		if err := json.Unmarshal(b, &tmp); err != nil {
+		if err := sonic.Unmarshal(b, &tmp); err != nil {
 			return err
 		}
 		*ids = tmp
@@ -70,7 +69,7 @@ func (ids *IDs) UnmarshalJSON(data []byte) error {
 		return nil
 	case '"':
 		var tmp string
-		if err := json.Unmarshal(b, &tmp); err != nil {
+		if err := sonic.Unmarshal(b, &tmp); err != nil {
 			return err
 		}
 		*ids = IDs{}
@@ -108,7 +107,7 @@ func (id *ID) UnmarshalJSON(data []byte) error {
 
 // MarshalJSON outputs string to avoid JS big-int issues
 func (id ID) MarshalJSON() ([]byte, error) {
-	return json.Marshal(id.String())
+	return sonic.Marshal(id.String())
 }
 
 func (id ID) String() string {

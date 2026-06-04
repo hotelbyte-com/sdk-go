@@ -36,5 +36,10 @@ type AuthReq struct {
 }
 
 type AuthResp struct {
-	Ticket string `json:"ticket"`
+	Ticket      string `json:"ticket"`
+	AccessToken string `json:"accessToken"`
+	TokenType   string `json:"tokenType,omitempty"`
+	ExpiresIn   int64  `json:"expiresIn,omitempty"`
+	ExpiresAt   string `json:"expiresAt,omitempty"`
+	Scope       string `json:"scope,omitempty"`
 }

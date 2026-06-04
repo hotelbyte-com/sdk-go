@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/bytedance/sonic"
-
 	"github.com/spf13/cast"
 
 	hotelbyte "github.com/hotelbyte-com/sdk-go"

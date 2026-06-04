@@ -1,8 +1,9 @@
 package hotelbyte
 
 import (
-	"github.com/bytedance/sonic"
 	"log"
+
+	"github.com/bytedance/sonic"
 )
 
 func ToJSON(v interface{}) string {
@@ -12,10 +13,10 @@ func ToJSON(v interface{}) string {
 	if v == nil {
 		return "" // 兼容 nil 值，不要序列化成 null
 	}
-	s, err := sonic.MarshalString(v)
+	b, err := sonic.Marshal(v)
 	if err != nil {
 		log.Printf("ToJSONString failed(%v) from value(%v)\n", err, v)
 		return ""
 	}
-	return s
+	return string(b)
 }

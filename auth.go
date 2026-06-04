@@ -8,7 +8,6 @@ import (
 	"net/http"
 
 	"github.com/hotelbyte-com/sdk-go/protocol"
-	"github.com/hotelbyte-com/sdk-go/protocol/types"
 )
 
 const defaultAuthTTLSeconds int64 = 24 * 3600
@@ -36,7 +35,7 @@ func (s *Client) Authenticate(ctx context.Context) error {
 		if err != nil {
 			return nil, err
 		}
-		
+
 		s.mu.Lock()
 		s.token = token
 		s.tokenExpiry = expiry
@@ -69,16 +68,20 @@ func (s *Client) fetchToken(ctx context.Context, ttlSeconds int64) (string, time
 		return "", time.Time{}, err
 	}
 
-	r, err := types.NewResponseData[protocol.AuthResp](resp)
+	r, err := decodeWrappedOrRaw[protocol.AuthResp](resp)
 	if err != nil {
 		return "", time.Time{}, err
 	}
-	if r.Ticket == "" {
+	token := r.Ticket
+	if token == "" {
+		token = r.AccessToken
+	}
+	if token == "" {
 		return "", time.Time{}, fmt.Errorf("empty ticket from auth response")
 	}
 
 	expiry := time.Now().Add(time.Duration(req.TTL) * time.Second)
-	return r.Ticket, expiry, nil
+	return token, expiry, nil
 }
 
 // GetToken returns the current authentication token
