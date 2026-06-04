@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/bytedance/sonic"
 	"strconv"
 	"strings"
 
@@ -38,7 +37,7 @@ func (ids *IDs) MarshalJSON() ([]byte, error) {
 	if len(*ids) == 0 {
 		return []byte("[]"), nil
 	}
-	return sonic.Marshal(*ids)
+	return json.Marshal(*ids)
 }
 
 func (ids *IDs) UnmarshalJSON(data []byte) error {
@@ -60,7 +59,7 @@ func (ids *IDs) UnmarshalJSON(data []byte) error {
 		return nil
 	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '+', '.', 'e', 'n':
 		var tmp int64
-		if err := sonic.Unmarshal(b, &tmp); err != nil {
+		if err := json.Unmarshal(b, &tmp); err != nil {
 			return err
 		}
 		if tmp == 0 {
@@ -99,7 +98,7 @@ func (id *ID) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 	var val int64
-	if err := sonic.Unmarshal(data, &val); err != nil {
+	if err := json.Unmarshal(data, &val); err != nil {
 		return fmt.Errorf("invalid ID number: %s", string(data))
 	}
 	*id = ID(val)

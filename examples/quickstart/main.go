@@ -2,11 +2,10 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"time"
-
-	"github.com/bytedance/sonic"
 
 	"github.com/spf13/cast"
 
@@ -319,6 +318,6 @@ func handleRate(ctx context.Context, client *hotelbyte.Client, rate protocol.Roo
 }
 
 func Pretty(v interface{}) string {
-	s, _ := sonic.MarshalIndent(v, "", "  ")
-	return string(s)
+	b, _ := json.MarshalIndent(v, "", "  ")
+	return string(b)
 }

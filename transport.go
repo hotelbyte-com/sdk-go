@@ -3,6 +3,7 @@ package hotelbyte
 import (
 	"context"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/bytedance/sonic"
 	"github.com/go-resty/resty/v2"
 	"github.com/hotelbyte-com/sdk-go/protocol/types"
 )
@@ -24,7 +24,7 @@ type Transport struct {
 // NewTransport creates a new transport layer
 func NewTransport(config *Config) (*Transport, error) {
 	transport := &http.Transport{
-		Proxy:               http.ProxyFromEnvironment,
+		// Proxy:               http.ProxyFromEnvironment,
 		MaxIdleConns:        config.HTTPConfig.MaxIdleConns,
 		MaxIdleConnsPerHost: config.HTTPConfig.MaxConnsPerHost,
 		IdleConnTimeout:     90 * time.Second,
@@ -40,8 +40,8 @@ func NewTransport(config *Config) (*Transport, error) {
 		SetTimeout(config.HTTPConfig.Timeout).
 		SetHeader("User-Agent", config.HTTPConfig.UserAgent).
 		SetHeader("Content-Type", "application/json").
-		SetJSONMarshaler(sonic.Marshal).
-		SetJSONUnmarshaler(sonic.Unmarshal).
+		SetJSONMarshaler(json.Marshal).
+		SetJSONUnmarshaler(json.Unmarshal).
 		SetTransport(transport).
 		SetRetryCount(config.RetryConfig.MaxRetries).
 		SetRetryWaitTime(config.RetryConfig.InitialDelay).

@@ -1,13 +1,12 @@
 package types
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"reflect"
 	"strings"
-
-	"github.com/bytedance/sonic"
 )
 
 type Response[T any] struct {
@@ -68,7 +67,7 @@ func NewResponse[T any](r *HttpResponse) (*Response[T], error) {
 		return nil, NewBizErr(int32(r.StatusCode), "Service Unavailable")
 	}
 	var response Response[T]
-	err := sonic.Unmarshal(r.Body, &response)
+	err := json.Unmarshal(r.Body, &response)
 	if err != nil {
 		return nil, fmt.Errorf("invalid body %w", err)
 	}

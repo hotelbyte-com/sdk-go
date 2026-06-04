@@ -8,8 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bytedance/sonic"
-
 	"github.com/spf13/cast"
 )
 
@@ -195,5 +193,5 @@ func (d *DateInt) UnmarshalJSON(data []byte) error {
 
 // MarshalJSON YYYY-MM-DD, "2006-01-02"
 func (d DateInt) MarshalJSON() ([]byte, error) {
-	return sonic.Marshal(d.Format("2006-01-02"))
+	return json.Marshal(d.Format("2006-01-02"))
 }

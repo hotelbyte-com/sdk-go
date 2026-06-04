@@ -1,13 +1,12 @@
 package protocol
 
 import (
+	"encoding/json"
 	"testing"
-
-	"github.com/bytedance/sonic"
 )
 
 func TestMarshal(t *testing.T) {
 	req := &HotelListReq{}
-	s, _ := sonic.MarshalString(req)
-	t.Logf("%+v", s)
+	b, _ := json.Marshal(req)
+	t.Logf("%+v", string(b))
 }
