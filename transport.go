@@ -3,12 +3,12 @@ package hotelbyte
 import (
 	"context"
 	"crypto/tls"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/bytedance/sonic"
 	"github.com/sirupsen/logrus"
 
 	"github.com/go-resty/resty/v2"
@@ -40,8 +40,8 @@ func NewTransport(config *Config) (*Transport, error) {
 		SetTimeout(config.HTTPConfig.Timeout).
 		SetHeader("User-Agent", config.HTTPConfig.UserAgent).
 		SetHeader("Content-Type", "application/json").
-		SetJSONMarshaler(json.Marshal).
-		SetJSONUnmarshaler(json.Unmarshal).
+		SetJSONMarshaler(sonic.Marshal).
+		SetJSONUnmarshaler(sonic.Unmarshal).
 		SetTransport(transport).
 		SetRetryCount(config.RetryConfig.MaxRetries).
 		SetRetryWaitTime(config.RetryConfig.InitialDelay).

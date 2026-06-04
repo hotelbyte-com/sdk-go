@@ -2,11 +2,11 @@ package hotelbyte
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 
+	"github.com/bytedance/sonic"
 	"github.com/hotelbyte-com/sdk-go/protocol/types"
 )
 
@@ -196,7 +196,7 @@ func decodeWrappedOrRaw[T any](resp *types.HttpResponse) (*T, error) {
 	}
 
 	var raw T
-	if err := json.Unmarshal(resp.Body, &raw); err != nil {
+	if err := sonic.Unmarshal(resp.Body, &raw); err != nil {
 		return nil, wrappedErr
 	}
 	return &raw, nil

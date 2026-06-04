@@ -2,12 +2,12 @@ package types
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/bytedance/sonic"
 	"github.com/spf13/cast"
 )
 
@@ -184,7 +184,7 @@ func (d *DateInt) UnmarshalJSON(data []byte) error {
 		return fmt.Errorf("invalid date string: %s", str)
 	}
 	var num int
-	if err := json.Unmarshal(data, &num); err == nil {
+	if err := sonic.Unmarshal(data, &num); err == nil {
 		*d = DateInt(num)
 		return nil
 	}
@@ -193,5 +193,5 @@ func (d *DateInt) UnmarshalJSON(data []byte) error {
 
 // MarshalJSON YYYY-MM-DD, "2006-01-02"
 func (d DateInt) MarshalJSON() ([]byte, error) {
-	return json.Marshal(d.Format("2006-01-02"))
+	return sonic.Marshal(d.Format("2006-01-02"))
 }

@@ -2,11 +2,11 @@ package types
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
 
+	"github.com/bytedance/sonic"
 	"github.com/spf13/cast"
 )
 
@@ -37,7 +37,7 @@ func (ids *IDs) MarshalJSON() ([]byte, error) {
 	if len(*ids) == 0 {
 		return []byte("[]"), nil
 	}
-	return json.Marshal(*ids)
+	return sonic.Marshal(*ids)
 }
 
 func (ids *IDs) UnmarshalJSON(data []byte) error {
@@ -52,14 +52,14 @@ func (ids *IDs) UnmarshalJSON(data []byte) error {
 	switch b[0] {
 	case '[':
 		var tmp []ID
-		if err := json.Unmarshal(b, &tmp); err != nil {
+		if err := sonic.Unmarshal(b, &tmp); err != nil {
 			return err
 		}
 		*ids = tmp
 		return nil
 	case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '+', '.', 'e', 'n':
 		var tmp int64
-		if err := json.Unmarshal(b, &tmp); err != nil {
+		if err := sonic.Unmarshal(b, &tmp); err != nil {
 			return err
 		}
 		if tmp == 0 {
@@ -69,7 +69,7 @@ func (ids *IDs) UnmarshalJSON(data []byte) error {
 		return nil
 	case '"':
 		var tmp string
-		if err := json.Unmarshal(b, &tmp); err != nil {
+		if err := sonic.Unmarshal(b, &tmp); err != nil {
 			return err
 		}
 		*ids = IDs{}
@@ -98,7 +98,7 @@ func (id *ID) UnmarshalJSON(data []byte) error {
 		return nil
 	}
 	var val int64
-	if err := json.Unmarshal(data, &val); err != nil {
+	if err := sonic.Unmarshal(data, &val); err != nil {
 		return fmt.Errorf("invalid ID number: %s", string(data))
 	}
 	*id = ID(val)
@@ -107,7 +107,7 @@ func (id *ID) UnmarshalJSON(data []byte) error {
 
 // MarshalJSON outputs string to avoid JS big-int issues
 func (id ID) MarshalJSON() ([]byte, error) {
-	return json.Marshal(id.String())
+	return sonic.Marshal(id.String())
 }
 
 func (id ID) String() string {
