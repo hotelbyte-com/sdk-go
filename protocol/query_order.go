@@ -4,6 +4,7 @@ import "github.com/hotelbyte-com/sdk-go/protocol/types"
 
 // QueryOrdersReq represents a request to query multiple hotel orders
 type QueryOrdersReq struct {
+	DistributorOption
 	CustomerReferenceNos []string          `json:"customerReferenceNos,omitzero"` // customer reference numbers to search for
 	SupplierReferenceNos []string          `json:"supplierReferenceNos,omitzero"` // supplier reference numbers to search for
 	CheckInTimeWindow    *types.TimeWindow `json:"checkInTimeWindow,omitzero"`    // filters orders by check-in date range

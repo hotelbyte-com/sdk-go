@@ -7,6 +7,7 @@ import (
 )
 
 type BookReq struct {
+	DistributorOption
 	CustomerReferenceNo string  `json:"customerReferenceNo,omitempty" example:"uuid"`                // customerReferenceNo contains the reference number value
 	RatePkgId           string  `json:"ratePkgId,omitempty" required:"true"`                         // RatePkgId is obtained from HotelStaticDetail API
 	Holder              Holder  `json:"holder,omitzero" required:"true"`                             // Holder contains the booking contact information
@@ -63,8 +64,8 @@ type HotelOrder struct {
 
 // OrderBasic contains the fundamental information about a hotel order
 type OrderBasic struct {
-	Status              OrderStatus   `json:"status" required="true" example:"1"`           // OrderStatus indicates the current status of the order
-	StatusAlert         StatusAlert   `json:"statusAlert,omitempty" example:"none"`       // Current business alert for customer-facing status projection
+	Status              OrderStatus   `json:"status" required="true" example:"1"`   // OrderStatus indicates the current status of the order
+	StatusAlert         StatusAlert   `json:"statusAlert,omitempty" example:"none"` // Current business alert for customer-facing status projection
 	StatusRemark        string        `json:"statusRemark" example:"aborted"`
 	CheckIn             types.DateInt `json:"checkIn" required:"true" example:"2026-01-01"`
 	CheckOut            types.DateInt `json:"checkOut" required:"true" example:"2026-01-03"`

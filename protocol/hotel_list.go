@@ -7,6 +7,7 @@ import (
 )
 
 type HotelListReq struct {
+	DistributorOption
 	HotelIds         types.IDs `json:"hotelIds" example:"[\"461850557\",\"118062388\"]"`
 	MaxRatesPerHotel int64     `json:"maxRatesPerHotel" default:"0" example:"3"`
 	CheckInOut                 // embedded

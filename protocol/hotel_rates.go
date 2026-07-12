@@ -3,6 +3,7 @@ package protocol
 import "github.com/hotelbyte-com/sdk-go/protocol/types"
 
 type HotelRatesReq struct {
+	DistributorOption
 	HotelId types.ID `json:"hotelId" required:"true" example:"461850557"`
 	CheckInOut
 	Occupancies

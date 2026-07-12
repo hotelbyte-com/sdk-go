@@ -1,6 +1,7 @@
 package protocol
 
 type CheckAvailReq struct {
+	DistributorOption
 	RatePkgId string `json:"ratePkgId" required:"true"`
 	SessionOption
 	TestOption
