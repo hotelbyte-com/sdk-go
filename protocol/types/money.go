@@ -13,6 +13,21 @@ type Money struct {
 	Amount   float64 `json:"amount" required:"true"`   // eg. "14.50"
 }
 
+// MarshalJSON emits the canonical decimal-string amount used by hotel-be.
+// The public Amount field remains float64 for SDK source compatibility.
+func (m Money) MarshalJSON() ([]byte, error) {
+	if math.IsNaN(m.Amount) || math.IsInf(m.Amount, 0) {
+		return nil, fmt.Errorf("Money.Amount: cannot marshal non-finite value %v", m.Amount)
+	}
+	return json.Marshal(struct {
+		Currency string `json:"currency"`
+		Amount   string `json:"amount"`
+	}{
+		Currency: m.Currency,
+		Amount:   strconv.FormatFloat(m.Amount, 'f', -1, 64),
+	})
+}
+
 // UnmarshalJSON accepts the canonical decimal-string amount emitted by
 // hotel-be and the legacy JSON number representation. Amount remains float64
 // for public API compatibility.
